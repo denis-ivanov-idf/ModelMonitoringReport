@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MonitoringReport.monitoring_tests.StabilityTests &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">How-to guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">MonitoringReport.monitoring_tests.StabilityTests</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for MonitoringReport.monitoring_tests.StabilityTests</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">researchpy</span> <span class="k">as</span> <span class="nn">rp</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="stability_checks">
+<a class="viewcode-back" href="../../../MonitoringReport.monitoring_tests.html#MonitoringReport.monitoring_tests.StabilityTests.stability_checks">[docs]</a>
+<span class="k">def</span> <span class="nf">stability_checks</span><span class="p">(</span>
+    <span class="n">df_user</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">feature_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">date_column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;M&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform stability checks on categorical and numerical features over time.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df_user (pd.DataFrame): The input DataFrame.</span>
+<span class="sd">        feature_names (list): List of feature names to check.</span>
+<span class="sd">        date_column_name (str): The name of the date column.</span>
+<span class="sd">        time_freq (str): Frequency of aggregation (&#39;M&#39; for months or &#39;Q&#39; for quarters).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: DataFrame containing stability metrics for each feature over time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df_user</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">features</span> <span class="o">=</span> <span class="n">feature_names</span>
+
+    <span class="c1"># Convert the date column to datetime format if not already done</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">psi_values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Date column is empty&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Create a new column with the required date aggregation</span>
+        <span class="k">if</span> <span class="n">time_freq</span> <span class="o">==</span> <span class="s2">&quot;M&quot;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">&quot;M&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">time_freq</span> <span class="o">==</span> <span class="s2">&quot;Q&quot;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">time_freq</span> <span class="o">==</span> <span class="s2">&quot;W&quot;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">date_column_name</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;time_freq must be either &#39;M&#39; for months or &#39;Q&#39; for quarters&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Process categorical features</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">feature_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">as_ordered</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span> <span class="ow">or</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">==</span> <span class="s2">&quot;object&quot;</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="n">psi_values</span> <span class="o">=</span> <span class="n">calculate_data_drift</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="n">date_column_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">psi_values</span></div>
+
+
+
+<span class="c1"># check stability</span>
+<div class="viewcode-block" id="calculate_psi">
+<a class="viewcode-back" href="../../../MonitoringReport.monitoring_tests.html#MonitoringReport.monitoring_tests.StabilityTests.calculate_psi">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_psi</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">buckettype</span><span class="o">=</span><span class="s2">&quot;bins&quot;</span><span class="p">,</span> <span class="n">buckets</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the PSI (population stability index) across all variables</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">       expected: numpy matrix of original values</span>
+<span class="sd">       actual: numpy matrix of new values</span>
+<span class="sd">       buckettype: type of strategy for creating buckets, bins splits into even splits, quantiles splits into quantile buckets</span>
+<span class="sd">       buckets: number of quantiles to use in bucketing variables</span>
+<span class="sd">       axis: axis by which variables are defined, 0 for vertical, 1 for horizontal</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">       psi_values: ndarray of psi values for each variable</span>
+
+<span class="sd">    Author:</span>
+<span class="sd">       Matthew Burke</span>
+<span class="sd">       github.com/mwburke</span>
+<span class="sd">       mwburke.github.io.com</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">psi</span><span class="p">(</span><span class="n">expected_array</span><span class="p">,</span> <span class="n">actual_array</span><span class="p">,</span> <span class="n">buckets</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the PSI for a single variable</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           expected_array: numpy array of original values</span>
+<span class="sd">           actual_array: numpy array of new values, same size as expected</span>
+<span class="sd">           buckets: number of percentile ranges to bucket the values into</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">           psi_value: calculated PSI value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">scale_range</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="nb">min</span><span class="p">,</span> <span class="nb">max</span><span class="p">):</span>
+            <span class="nb">input</span> <span class="o">+=</span> <span class="o">-</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+            <span class="nb">input</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="nb">max</span> <span class="o">-</span> <span class="nb">min</span><span class="p">)</span>
+            <span class="nb">input</span> <span class="o">+=</span> <span class="nb">min</span>
+            <span class="k">return</span> <span class="nb">input</span>
+
+        <span class="n">breakpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">buckets</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">buckets</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="k">if</span> <span class="n">buckettype</span> <span class="o">==</span> <span class="s2">&quot;bins&quot;</span><span class="p">:</span>
+            <span class="n">breakpoints</span> <span class="o">=</span> <span class="n">scale_range</span><span class="p">(</span>
+                <span class="n">breakpoints</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">expected_array</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">expected_array</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">buckettype</span> <span class="o">==</span> <span class="s2">&quot;quantiles&quot;</span><span class="p">:</span>
+            <span class="n">breakpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">expected_array</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">breakpoints</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="n">expected_fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">expected_array</span><span class="p">,</span> <span class="n">breakpoints</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">expected_array</span>
+        <span class="p">)</span>
+        <span class="n">actual_fractions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">actual_array</span><span class="p">,</span> <span class="n">breakpoints</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">actual_array</span>
+        <span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">sub_psi</span><span class="p">(</span><span class="n">e_perc</span><span class="p">,</span> <span class="n">a_perc</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Calculate the actual PSI value from comparing the values.</span>
+<span class="sd">            Update the actual value to a very small number if equal to zero</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">a_perc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">a_perc</span> <span class="o">=</span> <span class="mf">0.0001</span>
+            <span class="k">if</span> <span class="n">e_perc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">e_perc</span> <span class="o">=</span> <span class="mf">0.0001</span>
+
+            <span class="n">value</span> <span class="o">=</span> <span class="p">(</span><span class="n">e_perc</span> <span class="o">-</span> <span class="n">a_perc</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">e_perc</span> <span class="o">/</span> <span class="n">a_perc</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">value</span>
+
+        <span class="n">psi_value</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">sub_psi</span><span class="p">(</span><span class="n">expected_fractions</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">actual_fractions</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected_fractions</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">psi_value</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">psi_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">psi_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">expected</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">axis</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">psi_values</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">psi_values</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">psi_values</span> <span class="o">=</span> <span class="n">psi</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">actual</span><span class="p">,</span> <span class="n">buckets</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">psi_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">psi</span><span class="p">(</span><span class="n">expected</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">actual</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">buckets</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">psi_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">psi</span><span class="p">(</span><span class="n">expected</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">actual</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:],</span> <span class="n">buckets</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">psi_values</span></div>
+
+
+
+<span class="c1"># check stability</span>
+<div class="viewcode-block" id="calculate_data_drift">
+<a class="viewcode-back" href="../../../MonitoringReport.monitoring_tests.html#MonitoringReport.monitoring_tests.StabilityTests.calculate_data_drift">[docs]</a>
+<span class="k">def</span> <span class="nf">calculate_data_drift</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">features_l</span><span class="p">,</span> <span class="n">date_col</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates data drift between consecutive dates for specified features.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        df (pd.DataFrame): The input DataFrame containing the data.</span>
+<span class="sd">        features_l (list): List of feature names to monitor for drift.</span>
+<span class="sd">        date_col (str): The date column name.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: DataFrame with the calculated drift values for each feature and date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unique_dates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">unique_dates</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">unique_dates</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique_dates</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">existing_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">])</span>
+        <span class="n">dict_stability_check</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_dates</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">date1</span> <span class="o">=</span> <span class="n">unique_dates</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">date2</span> <span class="o">=</span> <span class="n">unique_dates</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">subset_df1</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">date1</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">subset_df2</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">==</span> <span class="n">date2</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">min_len</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset_df1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_df2</span><span class="p">))</span>
+            <span class="n">subset_df1</span> <span class="o">=</span> <span class="n">subset_df1</span><span class="p">[:</span><span class="n">min_len</span><span class="p">]</span>
+            <span class="n">subset_df2</span> <span class="o">=</span> <span class="n">subset_df2</span><span class="p">[:</span><span class="n">min_len</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features_l</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Feature&quot;</span><span class="p">:</span> <span class="n">feature</span><span class="p">}</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">subset_df1</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span> <span class="ow">and</span> <span class="s2">&quot;_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">feature</span>
+                <span class="p">):</span>  <span class="c1"># Categorical feature</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">crosstab_result</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">rp</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span>
+                            <span class="n">subset_df1</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">subset_df2</span><span class="p">[</span><span class="n">feature</span><span class="p">],</span> <span class="n">test</span><span class="o">=</span><span class="s2">&quot;chi-square&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">res</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+                        <span class="c1"># Extract and convert the p-value to float</span>
+                        <span class="n">p_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="n">existing_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span>
+                            <span class="p">[</span>
+                                <span class="n">existing_array</span><span class="p">,</span>
+                                <span class="p">[</span><span class="n">feature</span><span class="p">,</span> <span class="s2">&quot;Cramer&quot;</span><span class="p">,</span> <span class="n">date2</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">p_value</span><span class="p">,</span> <span class="mi">3</span><span class="p">)],</span>
+                            <span class="p">]</span>
+                        <span class="p">)</span>
+
+                        <span class="c1"># print(f&quot;Cramer&#39;s V for {feature} between {date1} and {date2}: {res[&#39;Chi-square test&#39;][1]} {res[&#39;results&#39;][1]}&quot;)</span>
+                        <span class="c1"># if res[&quot;results&quot;][1] &lt; 0.05:</span>
+                        <span class="c1">#    print(</span>
+                        <span class="c1">#        f&quot;{feature} is unstable in {date1} and {date2} : p-value Cramer V test is {round(p_value,3)}&quot;</span>
+                        <span class="c1">#    )</span>
+                        <span class="c1"># list_bad.append(feature)</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="k">pass</span>
+                        <span class="c1"># list_bad.append(feature)</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># Numerical feature</span>
+                    <span class="n">psi_stat</span> <span class="o">=</span> <span class="n">calculate_psi</span><span class="p">(</span>
+                        <span class="n">subset_df2</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">subset_df1</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="n">existing_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">existing_array</span><span class="p">,</span> <span class="p">[</span><span class="n">feature</span><span class="p">,</span> <span class="s2">&quot;PSI&quot;</span><span class="p">,</span> <span class="n">date2</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">psi_stat</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]]</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># if psi_stat &gt; 0.2:</span>
+                    <span class="c1">#    print(</span>
+                    <span class="c1">#        f&quot;{feature} is unstable in {date1} and {date2} :  PSI is {round(psi_stat,3)}&quot;</span>
+                    <span class="c1">#    )</span>
+                    <span class="c1"># list_bad.append(feature)</span>
+
+        <span class="n">existing_array</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">existing_array</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">columns</span><span class="o">=</span><span class="n">existing_array</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">existing_array</span> <span class="o">=</span> <span class="n">existing_array</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">&quot;value&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="c1"># Rename the index name</span>
+        <span class="n">existing_array</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">existing_array</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;only one unique date: </span><span class="si">{</span><span class="n">unique_dates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">existing_array</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

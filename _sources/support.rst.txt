@@ -1,0 +1,7 @@
+Helps
+===============================================
+
+For help in implementing your monitoring models, feel free to contact Denis Ivanov.
+Descriptions of found bugs and suggestions for improving functionality are also welcome.
+
+denis.ivanov@idfinance.com

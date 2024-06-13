@@ -1,0 +1,12 @@
+EsDataWrapper package
+=====================
+.. note::
+   This module contains functions for working with the ClickHouse client and preparing data.
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   EsDataWrapper.utils

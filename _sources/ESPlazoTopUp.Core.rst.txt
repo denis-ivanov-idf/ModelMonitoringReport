@@ -1,0 +1,21 @@
+ESPlazoTopUp.Core package
+=========================
+
+Submodules
+----------
+
+ESPlazoTopUp.Core.DataCollect module
+------------------------------------
+
+.. automodule:: ESPlazoTopUp.Core.DataCollect
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ESPlazoTopUp.Core.basic\_scoring module
+---------------------------------------
+
+.. automodule:: ESPlazoTopUp.Core.basic_scoring
+   :members:
+   :undoc-members:
+   :show-inheritance:

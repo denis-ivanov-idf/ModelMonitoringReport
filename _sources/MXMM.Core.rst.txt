@@ -1,0 +1,21 @@
+MXMM.Core package
+=================
+
+Submodules
+----------
+
+MXMM.Core.DataCollect module
+----------------------------
+
+.. automodule:: MXMM.Core.DataCollect
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+MXMM.Core.basic\_scoring module
+-------------------------------
+
+.. automodule:: MXMM.Core.basic_scoring
+   :members:
+   :undoc-members:
+   :show-inheritance:

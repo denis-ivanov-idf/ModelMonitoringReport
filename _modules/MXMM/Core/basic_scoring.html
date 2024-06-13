@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MXMM.Core.basic_scoring &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">How-to guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">MXMM.Core.basic_scoring</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for MXMM.Core.basic_scoring</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">EsDataWrapper.utils.ClickhouseConnect</span> <span class="kn">import</span> <span class="n">init_db_client</span>
+<span class="kn">from</span> <span class="nn">EsDataWrapper.utils.ClickhouseUtils</span> <span class="kn">import</span> <span class="n">upload_pd_to_ch</span>
+<span class="kn">from</span> <span class="nn">EsDataWrapper.utils.DataLogParsing</span> <span class="kn">import</span> <span class="n">create_df_from_log</span>
+<span class="kn">from</span> <span class="nn">MXMM.Core.DataCollect</span> <span class="kn">import</span> <span class="n">collect_data_scoring</span><span class="p">,</span> <span class="n">collect_target_scoring</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">stream</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> [</span><span class="si">%(threadName)-12.12s</span><span class="s2">] [</span><span class="si">%(levelname)-5.5s</span><span class="s2">]  </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">MODEL_NAME</span> <span class="o">=</span> <span class="s2">&quot;rec_5_9_reg&quot;</span>
+<span class="n">DB_CREDS_PATH</span> <span class="o">=</span> <span class="s2">&quot;DS_model_analytics/db_creds&quot;</span>
+<span class="n">CH_OUT_TABLE</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;risk_db.ad_monitoring_data_</span><span class="si">{</span><span class="n">MODEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">IDENTIFIER</span> <span class="o">=</span> <span class="s2">&quot;SCORE_REC_5_9_NOT_PA_LTV_&quot;</span>
+
+
+<div class="viewcode-block" id="score_model">
+<a class="viewcode-back" href="../../../MXMM.Core.html#MXMM.Core.basic_scoring.score_model">[docs]</a>
+<span class="k">def</span> <span class="nf">score_model</span><span class="p">(</span><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ch_out_table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">db_cred_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scores the specified model and uploads the results to a ClickHouse table.</span>
+
+<span class="sd">    This function initializes database clients, collects necessary data and targets</span>
+<span class="sd">    for scoring, merges the data, and uploads the scored data to a specified ClickHouse</span>
+<span class="sd">    table.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        identifier (str): The name of the score card to be scored.</span>
+<span class="sd">        ch_out_table (str): The path to the ClickHouse table where the scored data will be uploaded.</span>
+<span class="sd">        db_cred_path (str): The path to the database credentials file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># init DB clients</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">init_db_client</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="s2">&quot;MX&quot;</span><span class="p">,</span> <span class="n">db_cred_path</span><span class="o">=</span><span class="n">db_cred_path</span><span class="p">)</span>
+    <span class="c1"># collect data</span>
+    <span class="n">timer_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">collect_data_scoring</span><span class="p">(</span><span class="n">db_client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">identifier</span><span class="o">=</span><span class="n">identifier</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identifier</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;SCORE_&quot;</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">create_df_from_log</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">identifier</span><span class="p">)</span>
+    <span class="n">timer_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Successfully loaded data from DB. All queries took </span><span class="si">%0.4f</span><span class="s2"> seconds&quot;</span>
+        <span class="o">%</span> <span class="p">(</span><span class="n">timer_end</span> <span class="o">-</span> <span class="n">timer_start</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># collect target</span>
+    <span class="k">for</span> <span class="n">dpd</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="mi">30</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;original&quot;</span><span class="p">,</span> <span class="s2">&quot;short&quot;</span><span class="p">)):</span>
+        <span class="n">timer_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">data_target</span> <span class="o">=</span> <span class="n">collect_target_scoring</span><span class="p">(</span><span class="n">db_client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span> <span class="n">dpd</span><span class="o">=</span><span class="n">dpd</span><span class="p">)</span>
+        <span class="n">data_target</span> <span class="o">=</span> <span class="n">data_target</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;target_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+        <span class="n">timer_end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Successfully loaded </span><span class="si">%s</span><span class="s2"> target from DB. All queries took </span><span class="si">%.4f</span><span class="s2"> seconds&quot;</span>
+            <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">timer_end</span> <span class="o">-</span> <span class="n">timer_start</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># merge data with original target</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">data_target</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;credit_id&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Successfully merget data with </span><span class="si">%s</span><span class="s2"> targets&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;open_gate_flag_y&quot;</span><span class="p">:</span> <span class="s2">&quot;open_gate_flag&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;open_gate_flag_x&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># upload data</span>
+    <span class="n">upload_pd_to_ch</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">ch_out_table</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="s2">&quot;credit_id&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Scores are uploaded to CH. Table path: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ch_out_table</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">score_model</span><span class="p">(</span>
+        <span class="n">identifier</span><span class="o">=</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+        <span class="n">ch_out_table</span><span class="o">=</span><span class="n">CH_OUT_TABLE</span><span class="p">,</span>
+        <span class="n">db_cred_path</span><span class="o">=</span><span class="n">DB_CREDS_PATH</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

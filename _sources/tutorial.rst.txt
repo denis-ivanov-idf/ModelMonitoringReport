@@ -1,0 +1,151 @@
+How-to guides
+===============================================
+You can use the following approach to implement your models for monthly monitoring.
+Descriptions of all used modules and functions can be found in the relevant sections of the documentation.
+
+Step 1 — cloning a repository
+*******************************************
+First, you need to clone a repository `analytics-sandbox <https://github.com/gitmoneyman-es/analytics-sandbox>`_
+
+Step 2 — model config
+*******************************************
+Next you need to add the model name and necessary configs to the ``Core/models_config.conf`` file.
+
+.. note::
+   To implement the model, do not forget to select your project.
+
+    * `ESMM <https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/ESMM>`_ — for ES MoneyMan models.
+
+    * `ESPlazoOldPD <https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/ESPlazoOldPD>`_ — for ES Plazo old models.
+
+    * `ESPlazoTopUp <https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/ESPlazoTopUp>`_ — for ES Plazo TopUp models.
+
+    * `MXMM <https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/MXMM>`_ — for MX MoneyMan models.
+
+Example if you can get scores from ClickHouse:
+
+.. code-block:: python
+
+    [ES_MM_NEW_NEW_PLN_UNNAX_202402]
+
+    model_name = ES_MM_NewCl_PLN_YR_02_2024
+    label = og_short
+
+Example if you need to get scores directly using the model:
+
+.. code-block:: python
+
+    [ES_PLAZO_CURR_CLIENT_PD_04_2024]
+
+    model_name = es_plazo_curr_client_pd_04_2024
+    model_path = /dev_mm/DS_model_analytics/ESPlazoTopUp/Models/es_plazo_curr_client_pd_04_2024_v2.cbm
+    label = og_short
+
+Step 3 — features collection
+*******************************************
+Then you need to prepare an **SQL script** for collecting data and add it to the ``Core.DataCollect.py`` module
+in the ``collect_data_scoring`` function using the appropriate syntax. You can use CP tables
+if necessary with logged features and their values.
+Later in **Step 5** you can use ``create_df_from_log`` from the ``DataLogParsing.py`` module.
+
+Step 4 — target collection
+*******************************************
+Then you need to add a target. To do this, you can use the ``collect_target_scoring`` function in ``Core.DataCollect.py`` module,
+which already implements the collection of the main and short targets for most of our models.
+If there is a need to use a different target, you can add its collection to this function using the appropriate syntax.
+
+Step 5 — creating table with scores
+*******************************************
+Next you need to prepare a table with all IDs, date, features, open gate flag, targets, scores.
+To do this, you need to use the ``score_model`` function from the ``Core.basic_scoring.py`` module.
+It implements connecting to ClickHouse, loading sql from the previous steps, combining features and targets,
+scoring (if scoring is not implemented in the sql script). Also you can use ``create_df_from_log``
+from the ``DataLogParsing.py`` module to receive data.
+
+Then a table will create with all the data in ClickHouse.
+
+.. note::
+    The path to the table is specified in the ``DS_model_analytics/report_config``:
+
+    * ESMM — risk_db.esmm_monitoring_data + model name
+
+    * ESPlazoOldPD — risk_db.old_pd_monitoring_data + model name
+
+    * ESPlazoTopUp — risk_db.ids_monitoring_data + model name
+
+    * MXMM — risk_db.ad_monitoring_data + model name
+
+.. note::
+    This table will be used later to create a report.
+    Therefore, it is necessary to adhere to the structure below.
+    Or any other, but you will need to change the template described in the next step.
+
+Table example:
+
+.. list-table:: Table with scores
+   :widths: 10 10 10 10 10 10 10 10 10
+   :header-rows: 1
+
+   * - credit_id or borrower_id
+     - date_requested
+     - feature 1
+     - feature 2
+     - feature 3
+     - score_pred
+     - open_gate_flag
+     - target_original
+     - target_short
+   * - 427317
+     - 2024-01-01
+     - value
+     - value
+     - value
+     - 500
+     - 1
+     - 0
+     - 1
+   * - 427318
+     - 2024-01-02
+     - value
+     - value
+     - value
+     - 003
+     - 0
+     - 1
+     - 1
+
+Step 6 — creating report
+*******************************************
+Then you need to create a report.
+
+.. note::
+    Automated and most likely you don’t need to change anything here.
+
+For this, functions from the ``MonitoringReport.upload_report_to_conf.py`` module are used.
+This module implements report creation using the template ``Templates.pweave_report_template_{label}.py``.
+In the current situation, the template is standardized under label *og_short* for almost all models.
+That is, open gate data, a main target and a short target are used. If this is unnecessary for your model or, on the contrary, not enough,
+you can create a new template based on this and add a label to the configuration file discussed above in **Step 1**.
+
+Step 7 — airflow dag
+*******************************************
+
+.. note::
+    Dag uses the functions above. So most likely you don’t need to change anything here.
+    You just need to add your email to receive reports.
+
+If you have made significant changes to the considered functions, added new arguments
+or model parameters in the configuration file, you may also need to update the dag accordingly.
+Our dags are located here and you can familiarize yourself with them:
+
+* `ESMM DAG <https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_ESMM_models_monitoring.py>`_ — for ES MoneyMan models.
+
+* `ESPlazoOldPD DAG <https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_PLAZO_old_models_monitoring.py>`_ — for ES Plazo old models.
+
+* `ESPlazoTopUp DAG <https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_PLAZO_topup_models_monitoring.py>`_ — for ES Plazo TopUp models.
+
+* `MXMM DAG <https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_MX_models_monitoring.py>`_ — for MX MoneyMan models.
+
+Step 8 — email
+*******************************************
+You can check your email and be happy about the report... or upset.

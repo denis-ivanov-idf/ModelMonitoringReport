@@ -1,0 +1,13 @@
+ESPlazoTopUp package
+====================
+.. note::
+   This module is used for TopUp plazo models monitoring.
+   In the future it will be combined with a module for monitoring PD plazo models.
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   ESPlazoTopUp.Core

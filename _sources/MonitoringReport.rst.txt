@@ -1,0 +1,24 @@
+MonitoringReport package
+========================
+
+.. note::
+   This module contains functions for preparing plots, output and excel files for the report.
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   MonitoringReport.monitoring_tests
+
+Submodules
+----------
+
+MonitoringReport.upload\_report\_to\_conf module
+------------------------------------------------
+
+.. automodule:: MonitoringReport.upload_report_to_conf
+   :members:
+   :undoc-members:
+   :show-inheritance:

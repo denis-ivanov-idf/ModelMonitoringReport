@@ -1,0 +1,21 @@
+ESMM.Core package
+=================
+
+Submodules
+----------
+
+ESMM.Core.DataCollect module
+----------------------------
+
+.. automodule:: ESMM.Core.DataCollect
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ESMM.Core.basic\_scoring module
+-------------------------------
+
+.. automodule:: ESMM.Core.basic_scoring
+   :members:
+   :undoc-members:
+   :show-inheritance:

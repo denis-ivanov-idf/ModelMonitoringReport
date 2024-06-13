@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESMM.Core.DataCollect &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">How-to guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ESMM.Core.DataCollect</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ESMM.Core.DataCollect</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># function for loading data</span>
+<div class="viewcode-block" id="collect_data_scoring">
+<a class="viewcode-back" href="../../../ESMM.Core.html#ESMM.Core.DataCollect.collect_data_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_data_scoring</span><span class="p">(</span>
+    <span class="n">db_client</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects data for scoring based on the specified model name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        model_name (str): The name of the model for which data is being collected.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A DataFrame containing the collected data, sorted by &#39;date_requested&#39; and with duplicates</span>
+<span class="sd">        on &#39;credit_id&#39; removed, keeping the first occurrence.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the model name is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;ES_MM_NewCl_PLN_YR_02_2024&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT credit_id                                                    as credit_id,</span>
+<span class="s2">                    date_requested,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN initial_amount &lt; 108.17 THEN 0.8743861614068417</span>
+<span class="s2">                        WHEN initial_amount &gt;= 108.17 AND initial_amount &lt; 183.18 THEN 0.6127841991287658</span>
+<span class="s2">                        WHEN initial_amount &gt;= 183.18 AND initial_amount &lt; 308.18 THEN 0.0532012902477443</span>
+<span class="s2">                        WHEN initial_amount &gt;= 308.18 AND initial_amount &lt; 408.18 THEN -0.0702890998223879</span>
+<span class="s2">                        WHEN initial_amount &gt;= 408.18 THEN -0.6217230657202558</span>
+<span class="s2">                        WHEN initial_amount IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS initial_amount_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN creditorsinasnef &lt; 0.5 THEN 0.0860569705683061</span>
+<span class="s2">                        WHEN creditorsinasnef &gt;= 0.5 THEN -1.0035928313573703</span>
+<span class="s2">                        WHEN creditorsinasnef IS NULL THEN -0.1175419846729335</span>
+<span class="s2">                        ELSE 0 END                                               AS creditorsinasnef_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN age &lt; 19.5 THEN -0.5508640472840642</span>
+<span class="s2">                        WHEN age &gt;= 19.5 AND age &lt; 22.5 THEN -0.0543630830514018</span>
+<span class="s2">                        WHEN age &gt;= 22.5 AND age &lt; 24.5 THEN 0.2619476370319703</span>
+<span class="s2">                        WHEN age &gt;= 24.5 AND age &lt; 26.5 THEN 0.3870140260794618</span>
+<span class="s2">                        WHEN age &gt;= 26.5 AND age &lt; 30.5 THEN 0.325026873638608</span>
+<span class="s2">                        WHEN age &gt;= 30.5 AND age &lt; 32.5 THEN 0.1991276246520997</span>
+<span class="s2">                        WHEN age &gt;= 32.5 AND age &lt; 38.5 THEN 0.0405967363322804</span>
+<span class="s2">                        WHEN age &gt;= 38.5 AND age &lt; 46.5 THEN -0.0644874217170441</span>
+<span class="s2">                        WHEN age &gt;= 46.5 THEN -0.2570081128172706</span>
+<span class="s2">                        WHEN age IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS age_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &lt; 13.5 THEN -0.9833019078998724</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 13.5 AND i_unn_avg_history_balance_l1m &lt; 37.86 THEN -0.8583172142221333</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 37.86 AND i_unn_avg_history_balance_l1m &lt; 104.11 THEN -0.3847200769270069</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 104.11 AND i_unn_avg_history_balance_l1m &lt; 172.32 THEN -0.143517471076194</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 172.32 AND i_unn_avg_history_balance_l1m &lt; 198.78</span>
+<span class="s2">                            THEN 0.0840953614203126</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 198.78 AND i_unn_avg_history_balance_l1m &lt; 273.5</span>
+<span class="s2">                            THEN 0.1475657657403082</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 273.5 AND i_unn_avg_history_balance_l1m &lt; 383.22</span>
+<span class="s2">                            THEN 0.4165405012573245</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 383.22 AND i_unn_avg_history_balance_l1m &lt; 839.19</span>
+<span class="s2">                            THEN 0.4930186048777379</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m &gt;= 839.19 THEN 0.5200353447322011</span>
+<span class="s2">                        WHEN i_unn_avg_history_balance_l1m IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS i_unn_avg_history_balance_l1m_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m &lt; -1019.68 THEN 0.6200569584578458</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m &gt;= -1019.68 AND i_unnax_negative_loan_amount_l3m &lt; -506.82</span>
+<span class="s2">                            THEN 0.2135394033134029</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m &gt;= -506.82 AND i_unnax_negative_loan_amount_l3m &lt; -194.38</span>
+<span class="s2">                            THEN 0.1991276246520997</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m &gt;= -194.38 AND i_unnax_negative_loan_amount_l3m &lt; -101.74</span>
+<span class="s2">                            THEN 0.0813088740722316</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m &gt;= -101.74 AND i_unnax_negative_loan_amount_l3m &lt; -21.06</span>
+<span class="s2">                            THEN -0.0773759429475988</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m &gt;= -21.06 THEN -0.3291417506672751</span>
+<span class="s2">                        WHEN i_unnax_negative_loan_amount_l3m IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS i_unnax_negative_loan_amount_l3m_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i_unnax_unemployment_benefit_amount_l3m &lt; 42.2 THEN 0.0893665936654151</span>
+<span class="s2">                        WHEN i_unnax_unemployment_benefit_amount_l3m &gt;= 42.2 AND</span>
+<span class="s2">                                i_unnax_unemployment_benefit_amount_l3m &lt; 1085.28 THEN -0.6238117919030635</span>
+<span class="s2">                        WHEN i_unnax_unemployment_benefit_amount_l3m &gt;= 1085.28 THEN -0.7374857612095839</span>
+<span class="s2">                        WHEN i_unnax_unemployment_benefit_amount_l3m IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS i_unnax_unemployment_benefit_amount_l3m_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &lt; -740.6 THEN 0.5802241417433064</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &gt;= -740.6 AND i_unnax_grocery_expenses_l3m &lt; -412.88</span>
+<span class="s2">                            THEN 0.5502873879027218</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &gt;= -412.88 AND i_unnax_grocery_expenses_l3m &lt; -218.17</span>
+<span class="s2">                            THEN 0.3579906860519478</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &gt;= -218.17 AND i_unnax_grocery_expenses_l3m &lt; -65.47</span>
+<span class="s2">                            THEN 0.1379611894146121</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &gt;= -65.47 AND i_unnax_grocery_expenses_l3m &lt; -40.23 THEN -0.4006682405888538</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &gt;= -40.23 AND i_unnax_grocery_expenses_l3m &lt; -8.49 THEN -0.4374849193429357</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m &gt;= -8.49 THEN -0.7115982625886477</span>
+<span class="s2">                        WHEN i_unnax_grocery_expenses_l3m IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS i_unnax_grocery_expenses_l3m_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN pings_partner_integration_before_1st_issuance &lt; 0.5 THEN 0.0831287107892175</span>
+<span class="s2">                        WHEN pings_partner_integration_before_1st_issuance &gt;= 0.5 AND</span>
+<span class="s2">                                pings_partner_integration_before_1st_issuance &lt; 1.5 THEN -0.092351735844375</span>
+<span class="s2">                        WHEN pings_partner_integration_before_1st_issuance &gt;= 1.5 AND</span>
+<span class="s2">                                pings_partner_integration_before_1st_issuance &lt; 3.5 THEN -0.2229025003307598</span>
+<span class="s2">                        WHEN pings_partner_integration_before_1st_issuance &gt;= 3.5 THEN -0.5793600293322299</span>
+<span class="s2">                        WHEN pings_partner_integration_before_1st_issuance IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                               AS pings_partner_integration_before_1st_issuance_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_ram_productivity) &lt; 5975.0 THEN -0.3998621139833292</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_ram_productivity) &gt;= 5975.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_ram_productivity) &lt; 10125.0 THEN -0.3341281354409841</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_ram_productivity) &gt;= 10125.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_ram_productivity) &lt; 13175.0 THEN -0.1567626978262148</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_ram_productivity) &gt;= 13175.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_ram_productivity) &lt; 20100.0 THEN 0.2813657228890717</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_ram_productivity) &gt;= 20100.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_ram_productivity) &lt; 94600.0 THEN 0.5997027474660722</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_ram_productivity) &gt;= 94600.0 THEN 0.1360070814093888</span>
+<span class="s2">                        WHEN jc_predictors_ram_productivity IS NULL THEN -0.4415917012955891</span>
+<span class="s2">                        ELSE 0</span>
+<span class="s2">                        END                                                      AS jc_predictors_ram_productivity_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 5153.5 THEN -0.601275806730571</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 5153.5 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 6159.0 THEN -0.5440605019789304</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 6159.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 7927.0 THEN -0.2904957914632878</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 7927.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 11281.5 THEN 0.0169889082846725</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 11281.5 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 15953.5 THEN 0.2256808145580099</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 15953.5 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 22886.0 THEN 0.3191756669393354</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 22886.0 AND</span>
+<span class="s2">                                toFloat32OrZero(jc_predictors_avg_screen_idle_time) &lt; 32853.0 THEN 0.3231912622726888</span>
+<span class="s2">                        WHEN toFloat32OrZero(jc_predictors_avg_screen_idle_time) &gt;= 32853.0 THEN 0.9500381947474476</span>
+<span class="s2">                        WHEN jc_predictors_avg_screen_idle_time IS NULL THEN -0.4670484391330533</span>
+<span class="s2">                        ELSE 0</span>
+<span class="s2">                        END                                                      AS jc_predictors_avg_screen_idle_time_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN province IN (&#39;MADRID&#39;, &#39;VALENCIA&#39;) THEN 0.4178444038356538</span>
+<span class="s2">                        WHEN province IN (&#39;BARCELONA&#39;, &#39;ALICANTE-ALACANT&#39;) THEN 0.1319188749586497</span>
+<span class="s2">                        WHEN province IN (&#39;SEVILLA&#39;) THEN -0.1522793709020439</span>
+<span class="s2">                        WHEN province IN (&#39;LAS PALMAS&#39;, &#39;MURCIA&#39;) THEN -0.5037757308532105</span>
+<span class="s2">                        WHEN province IS NULL THEN -0.5230070927810978</span>
+<span class="s2">                        ELSE -0.1522793709020439 END                             AS province_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;TRAVEL&#39;) THEN 0.6127841991287658</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;UNEXPECTED_EXPENSES&#39;, &#39;CELEBRATIONS&#39;) THEN 0.1701400877788474</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;PAYINVOICES&#39;) THEN -0.0407779684610953</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;EDUCATION&#39;, &#39;OTHER&#39;) THEN -0.072079610596176</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;CAR&#39;, &#39;SHOPPING&#39;) THEN -0.1222701258688793</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;HELPFRIEND&#39;, &#39;LIABILITIES&#39;) THEN -0.1879936456235449</span>
+<span class="s2">                        WHEN credit_purpose IN (&#39;HOUSEHOLDEQUIPMENT&#39;, &#39;MEDICINE&#39;) THEN -0.3680450538829605</span>
+<span class="s2">                        WHEN credit_purpose IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE -0.0407779684610953 END                             AS credit_purpose_WOE,</span>
+<span class="s2">                    (1 / (1 + exp(-(-0.6356090629798216 * i_unnax_grocery_expenses_l3m_WOE +</span>
+<span class="s2">                                    -0.6590998763846965 * jc_predictors_ram_productivity_WOE +</span>
+<span class="s2">                                    -0.663970579229178 * i_unnax_negative_loan_amount_l3m_WOE +</span>
+<span class="s2">                                    -0.7436679823548024 * age_WOE +</span>
+<span class="s2">                                    -0.744944964190218 * jc_predictors_avg_screen_idle_time_WOE +</span>
+<span class="s2">                                    -0.7657598536420674 * credit_purpose_WOE +</span>
+<span class="s2">                                    -0.7720677150646289 * province_WOE + -0.7936648188518749 +</span>
+<span class="s2">                                    -0.8944952777748064 * i_unn_avg_history_balance_l1m_WOE +</span>
+<span class="s2">                                    -0.9651119557499341 * creditorsinasnef_WOE +</span>
+<span class="s2">                                    -1.1011960962609393 * i_unnax_unemployment_benefit_amount_l3m_WOE +</span>
+<span class="s2">                                    -1.3440015397971377 * pings_partner_integration_before_1st_issuance_WOE +</span>
+<span class="s2">                                    -1.4690153061180984 * initial_amount_WOE)))) AS score_pred</span>
+<span class="s2">                FROM (</span>
+<span class="s2">                        SELECT i.id                                    as credit_id</span>
+<span class="s2">                            , i.date_requested                        as date_requested</span>
+<span class="s2">                            , i.unnax_grocery_expenses_l3m            as i_unnax_grocery_expenses_l3m</span>
+<span class="s2">                            , jc.predictors_ram_productivity          as jc_predictors_ram_productivity</span>
+<span class="s2">                            , i.unnax_negative_loan_amount_l3m        as i_unnax_negative_loan_amount_l3m</span>
+<span class="s2">                            , i.age                                   as age</span>
+<span class="s2">                            , jc.predictors_avg_screen_idle_time      as jc_predictors_avg_screen_idle_time</span>
+<span class="s2">                            , i.credit_purpose                        as credit_purpose</span>
+<span class="s2">                            , i.province                              as province</span>
+<span class="s2">                            , i.unn_avg_history_balance_l1m           as i_unn_avg_history_balance_l1m</span>
+<span class="s2">                            , i.creditorsinasnef                      as creditorsinasnef</span>
+<span class="s2">                            , i.unnax_unemployment_benefit_amount_l3m as i_unnax_unemployment_benefit_amount_l3m</span>
+<span class="s2">                            , i.pings_partner_integration_before_1st_issuance</span>
+<span class="s2">                            , i.initial_amount                        as initial_amount</span>
+<span class="s2">                        FROM es_report.inflow i</span>
+<span class="s2">                                LEFT JOIN es_master.juicy_parsed_response jc</span>
+<span class="s2">                                            on i.id = jc.credit_id and toDate(i.date_requested) = toDate(jc.upload_date)</span>
+<span class="s2">                        WHERE i.finance_type = &#39;PLN&#39;</span>
+<span class="s2">                        and i.credit_number = 1</span>
+<span class="s2">                        and i.status not in (&#39;CANCELLED&#39;)</span>
+<span class="s2">                        and ifNull(i.unnax_valid_report, 0) = 1</span>
+<span class="s2">                        and ifNull(ifNull(i.matched_with_deleted, i.new_old), 0) = 0</span>
+<span class="s2">                        and i.prev_appl_count = 0</span>
+<span class="s2">                        and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year))</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;ES_MM_NewCL_PDL_NR_FA_04_24&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                select credit_id,</span>
+<span class="s2">                    date_requested,</span>
+<span class="s2">                    argMax(equifaxmicrofinancescore_bin_woe, date_requested)              as equifaxmicrofinancescore_bin_woe,</span>
+<span class="s2">                    argMax(js_predictors_ram_productivity_bin_woe, date_requested)        as js_predictors_ram_productivity_bin_woe,</span>
+<span class="s2">                    argMax(salary_bin_woe, date_requested)                                as salary_bin_woe,</span>
+<span class="s2">                    argMax(seon_count_registered_emails_bin_woe, date_requested)          as seon_count_registered_emails_bin_woe,</span>
+<span class="s2">                    argMax(user_device_name_bin_woe, date_requested)                      as user_device_name_bin_woe,</span>
+<span class="s2">                    argMax(province_bin_woe, date_requested)                              as province_bin_woe,</span>
+<span class="s2">                    argMax(js_predictors_ram_size_bin_woe, date_requested)                as js_predictors_ram_size_bin_woe,</span>
+<span class="s2">                    argMax(js_predictors_browser_history_count_bin_woe, date_requested)   as js_predictors_browser_history_count_bin_woe,</span>
+<span class="s2">                    argMax(age_bin_woe, date_requested)                                   as age_bin_woe,</span>
+<span class="s2">                    argMax(js_predictors_display_width_via_pixel_bin_woe, date_requested) as js_predictors_display_width_via_pixel_bin_woe,</span>
+<span class="s2">                    argMax(js_predictors_browserLanguagesLength_bin_woe, date_requested)  as js_predictors_browserLanguagesLength_bin_woe,</span>
+<span class="s2">                    argMax(score_pred, date_requested)                                    as score_pred</span>
+<span class="s2">                from (</span>
+<span class="s2">                        SELECT credit_id,</span>
+<span class="s2">                                date_requested,</span>
+<span class="s2">                                (1 / (1 + exp(-(-0.9609259503608009 +</span>
+<span class="s2">                                                1.0064174455572792 * equifaxmicrofinancescore_bin_woe +</span>
+<span class="s2">                                                0.4861127127476947 * js_predictors_ram_productivity_bin_woe +</span>
+<span class="s2">                                                1.0806598275135224 * user_device_name_bin_woe +</span>
+<span class="s2">                                                0.3109083239966578 * js_predictors_ram_size_bin_woe +</span>
+<span class="s2">                                                0.8114777958339574 * salary_bin_woe +</span>
+<span class="s2">                                                0.7852372624629519 * seon_count_registered_emails_bin_woe +</span>
+<span class="s2">                                                0.7344306214030571 * province_bin_woe +</span>
+<span class="s2">                                                0.8569345680186577 * age_bin_woe +</span>
+<span class="s2">                                                0.4246552324499636 * js_predictors_display_width_via_pixel_bin_woe +</span>
+<span class="s2">                                                0.5860199696484442 * js_predictors_browser_history_count_bin_woe +</span>
+<span class="s2">                                                0.4564751802312604 *</span>
+<span class="s2">                                                js_predictors_browserLanguagesLength_bin_woe)))) as score_pred,</span>
+<span class="s2">                                equifaxmicrofinancescore_bin_woe,</span>
+<span class="s2">                                js_predictors_ram_productivity_bin_woe,</span>
+<span class="s2">                                salary_bin_woe,</span>
+<span class="s2">                                seon_count_registered_emails_bin_woe,</span>
+<span class="s2">                                user_device_name_bin_woe,</span>
+<span class="s2">                                province_bin_woe,</span>
+<span class="s2">                                js_predictors_ram_size_bin_woe,</span>
+<span class="s2">                                js_predictors_browser_history_count_bin_woe,</span>
+<span class="s2">                                age_bin_woe,</span>
+<span class="s2">                                js_predictors_display_width_via_pixel_bin_woe,</span>
+<span class="s2">                                js_predictors_browserLanguagesLength_bin_woe</span>
+<span class="s2">                        FROM (</span>
+<span class="s2">                                SELECT i.id             as credit_id,</span>
+<span class="s2">                                        i.date_requested as date_requested,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(i.equifaxmicrofinancescore) &lt;= 3.0 THEN -0.309726279823302</span>
+<span class="s2">                                            WHEN toFloat64(i.equifaxmicrofinancescore) &gt; 3.0 AND</span>
+<span class="s2">                                                toFloat64(i.equifaxmicrofinancescore) &lt;= 4.0 THEN 0.19595430124177582</span>
+<span class="s2">                                            WHEN toFloat64(i.equifaxmicrofinancescore) &gt; 4.0 THEN 0.9689275684838673</span>
+<span class="s2">                                            WHEN i.equifaxmicrofinancescore IS NULL THEN 0.19595430124177582</span>
+<span class="s2">                                            ELSE 0 END   AS equifaxmicrofinancescore_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &lt;=</span>
+<span class="s2">                                                12750.0 OR</span>
+<span class="s2">                                                (toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &gt;</span>
+<span class="s2">                                                331350 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &lt;=</span>
+<span class="s2">                                                342910.8052378725) THEN 0.33971505120100004</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &gt;</span>
+<span class="s2">                                                12750.0 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &lt;=</span>
+<span class="s2">                                                90478.571 THEN 0.03475103761155101</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &gt;</span>
+<span class="s2">                                                90478.571 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &lt;= 331350</span>
+<span class="s2">                                                THEN -0.0202434917057067</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &gt;</span>
+<span class="s2">                                                342910.8052378725 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &lt;=</span>
+<span class="s2">                                                506078.571 THEN -0.16793091964761084</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &gt;</span>
+<span class="s2">                                                506078.571 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &lt;=</span>
+<span class="s2">                                                678500.0 THEN -0.33035842209371974</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_productivity, &#39;&#39;), &#39;341928.866&#39;)) &gt;</span>
+<span class="s2">                                                678500.000 THEN -0.30535782859573</span>
+<span class="s2">                                            ELSE 0 END   AS js_predictors_ram_productivity_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN i.user_device_name IN (&#39;ANDROID&#39;, &#39;DESKTOP_WEB&#39;, &#39;WEB&#39;) THEN -0.62792714777190310</span>
+<span class="s2">                                            WHEN i.user_device_name IN (&#39;MOBILE&#39;, &#39;MOBILE_WEB&#39;, &#39;&#39;) THEN 0.007305607676894788</span>
+<span class="s2">                                            WHEN i.user_device_name IN</span>
+<span class="s2">                                                (&#39;ANDROID_MOBILE&#39;, &#39;Missing&#39;, &#39;TABLET_WEB&#39;, &#39;UNKNOWN&#39;, &#39;IOS_MOBILE&#39;)</span>
+<span class="s2">                                                THEN 1.0222832039093337</span>
+<span class="s2">                                            WHEN i.user_device_name IS NULL THEN 1.0222832039093337</span>
+<span class="s2">                                            ELSE 0 END   AS user_device_name_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN i.salary &gt; 1600 OR (i.salary &gt; 1200 AND i.salary &lt;= 1400) THEN -0.07482525153980528</span>
+<span class="s2">                                            WHEN i.salary &gt; 1400 AND i.salary &lt;= 1600 THEN -0.34104964639848867</span>
+<span class="s2">                                            WHEN i.salary &gt; 1000 AND i.salary &lt;= 1200 THEN 0.04692786788645923</span>
+<span class="s2">                                            WHEN i.salary &lt;= 1000 THEN 0.4025457031886937</span>
+<span class="s2">                                            ELSE 0 END   AS salary_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN i.seon_count_registered_emails &gt; 5 THEN -0.30977097921278235</span>
+<span class="s2">                                            WHEN i.seon_count_registered_emails &gt; 4 AND i.seon_count_registered_emails &lt;= 5 THEN -0.13542676151109934</span>
+<span class="s2">                                            WHEN i.seon_count_registered_emails &gt; 3 AND i.seon_count_registered_emails &lt;= 4 THEN -0.02733531306188405</span>
+<span class="s2">                                            WHEN i.seon_count_registered_emails &lt;= 3 THEN 0.2518244953212406</span>
+<span class="s2">                                            ELSE 0 END   AS seon_count_registered_emails_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN i.province IN (&#39;GUADALAJARA&#39;, &#39;MADRID&#39;, &#39;TERUEL&#39;, &#39;BARCELONA&#39;) THEN -0.19572970862708036</span>
+<span class="s2">                                            WHEN i.province IN</span>
+<span class="s2">                                                (&#39;GIRONA&#39;, &#39;NAVARRA&#39;, &#39;OURENSE&#39;, &#39;SALAMANCA&#39;, &#39;SEGOVIA&#39;, &#39;ZARAGOZA&#39;, &#39;LA RIOJA&#39;,</span>
+<span class="s2">                                                &#39;GIPUZKOA&#39;) THEN -0.12203649052045236</span>
+<span class="s2">                                            WHEN i.province IN</span>
+<span class="s2">                                                (&#39;CASTELLON-CASTELLO&#39;, &#39;BIZKAIA&#39;, &#39;LUGO&#39;, &#39;MALAGA&#39;, &#39;MELILLA&#39;, &#39;PONTEVEDRA&#39;,</span>
+<span class="s2">                                                &#39;ILLES BALEARS&#39;, &#39;TARRAGONA&#39;, &#39;GRANADA&#39;) THEN 0.03395845407268799</span>
+<span class="s2">                                            WHEN i.province IN</span>
+<span class="s2">                                                (&#39;A CORUÑA&#39;, &#39;ALBACETE&#39;, &#39;ALICANTE-ALACANT&#39;, &#39;ASTURIAS&#39;, &#39;AVILA&#39;, &#39;BADAJOZ&#39;, &#39;BURGOS&#39;,</span>
+<span class="s2">                                                &#39;CADIZ&#39;, &#39;CORDOBA&#39;, &#39;CUENCA&#39;, &#39;LAS PALMAS&#39;, &#39;LLEIDA&#39;, &#39;MURCIA&#39;, &#39;PALENCIA&#39;,</span>
+<span class="s2">                                                &#39;SEVILLA&#39;, &#39;VALENCIA&#39;, &#39;ZAMORA&#39;, &#39;HUESCA&#39;) THEN 0.09488576260760134</span>
+<span class="s2">                                            WHEN i.province IN</span>
+<span class="s2">                                                (&#39;CACERES&#39;, &#39;CIUDAD REAL&#39;, &#39;JAEN&#39;, &#39;ALMERIA&#39;, &#39;SANTA CRUZ DE TENERIFE&#39;, &#39;TOLEDO&#39;,</span>
+<span class="s2">                                                &#39;LEON&#39;) THEN 0.2095295487147537</span>
+<span class="s2">                                            WHEN i.province IN (&#39;CEUTA&#39;, &#39;HUELVA&#39;, &#39;CANTABRIA&#39;, &#39;VALLADOLID&#39;, &#39;SORIA&#39;)</span>
+<span class="s2">                                                THEN 0.3130560586333273</span>
+<span class="s2">                                            WHEN i.province == &#39;ARABA-ALAVA&#39; THEN -0.19993269884554754</span>
+<span class="s2">                                            WHEN i.province IS NULL THEN 0.2095295487147537</span>
+<span class="s2">                                            ELSE 0 END   AS province_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN i.age &gt; 54 THEN 0.13634236407128617</span>
+<span class="s2">                                            WHEN (i.age &gt; 48 AND i.age &lt;= 54) OR (i.age &gt; 27 AND i.age &lt;= 35) THEN -0.07879923284478639</span>
+<span class="s2">                                            WHEN (i.age &gt; 35 AND i.age &lt;= 39) OR (i.age &gt; 43 AND i.age &lt;= 48) THEN -0.03501401690697014</span>
+<span class="s2">                                            WHEN i.age &gt; 39 AND i.age &lt;= 43 THEN 0.01845409149326256</span>
+<span class="s2">                                            WHEN i.age &gt; 22 AND i.age &lt;= 27 THEN -0.1829221185741483</span>
+<span class="s2">                                            WHEN i.age &lt;= 22 THEN 0.30633710838458234</span>
+<span class="s2">                                            ELSE 0 END   AS age_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN (toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                    &#39;13.91888221252778&#39;)) &lt;= 7) OR</span>
+<span class="s2">                                                (toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                    &#39;13.91888221252778&#39;)) &gt; 13 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                    &#39;13.91888221252778&#39;)) &lt;= 15) THEN 0.14581904248574407</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;13.91888221252778&#39;)) &gt; 10 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;13.91888221252778&#39;)) &lt;= 13 THEN -0.14919805236838854</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;13.91888221252778&#39;)) &gt; 7 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;13.91888221252778&#39;)) &lt;= 10 THEN -0.03297684654565823</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_browser_history_count, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;13.91888221252778&#39;)) &gt; 15 THEN -0.1856168705157731</span>
+<span class="s2">                                            ELSE 0 END   AS js_predictors_browser_history_count_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_size, &#39;&#39;), &#39;5.495864115678475&#39;)) &gt; 4 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_ram_size, &#39;&#39;), &#39;5.495864115678475&#39;)) &lt;= 5.503165</span>
+<span class="s2">                                                THEN -0.007390576424493295</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_size, &#39;&#39;), &#39;5.495864115678475&#39;)) &gt; 5.503165</span>
+<span class="s2">                                                THEN -0.3230024237988071</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_ram_size, &#39;&#39;), &#39;5.495864115678475&#39;)) &lt;= 4</span>
+<span class="s2">                                                THEN 0.20679769833905662</span>
+<span class="s2">                                            WHEN js.predictors_ram_size IS NULL THEN 0.20679769833905662</span>
+<span class="s2">                                            ELSE 0 END   AS js_predictors_ram_size_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_display_width_via_pixel, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;496.1655640024656&#39;)) &gt; 428.0 THEN -0.03834719379700105</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_display_width_via_pixel, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;496.1655640024656&#39;)) &gt; 375.0 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_display_width_via_pixel, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;496.1655640024656&#39;)) &lt;= 393.0 THEN -0.059064019242933474</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_display_width_via_pixel, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;496.1655640024656&#39;)) &gt; 393.0 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_display_width_via_pixel, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;496.1655640024656&#39;)) &lt;= 428.0 THEN -0.0735675027440469</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_display_width_via_pixel, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;496.1655640024656&#39;)) &gt;= 375.0 THEN 0.15659588452073983</span>
+<span class="s2">                                            ELSE 0 END   AS js_predictors_display_width_via_pixel_bin_woe,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_browserLanguagesLength, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;1.9581824168587423&#39;)) &lt;= 1.957 THEN -0.01474639070119775</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_browserLanguagesLength, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;1.9581824168587423&#39;)) &gt; 1.957 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js.predictors_browserLanguagesLength, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;1.9581824168587423&#39;)) &lt;= 2.0 THEN 0.10724396545752508</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js.predictors_browserLanguagesLength, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;1.9581824168587423&#39;)) &gt; 2.0 THEN -0.13269279436627796</span>
+<span class="s2">                                            ELSE 0 END   AS js_predictors_browserLanguagesLength_bin_woe</span>
+<span class="s2">                                FROM es_report.inflow i</span>
+<span class="s2">                                        left join es_master.juicy_parsed_response js on</span>
+<span class="s2">                                            i.id = js.credit_id and toDate(i.date_requested) = toDate(js.upload_date)</span>
+<span class="s2">                                where i.finance_type = &#39;PDL&#39;</span>
+<span class="s2">                                    and i.credit_number = 1</span>
+<span class="s2">                                    and ifNull(i.unnax_valid_report, 0) = 0</span>
+<span class="s2">                                    and ifNull(ifNull(i.matched_with_deleted, i.new_old), 0) = 0</span>
+<span class="s2">                                    and i.prev_appl_count = 0</span>
+<span class="s2">                                    and i.matured_30d_fpd = 1</span>
+<span class="s2">                                    and i.status in (&#39;SOLD&#39;, &#39;EXPIRED&#39;, &#39;COMPLETED&#39;, &#39;ACTIVE&#39;)</span>
+<span class="s2">                                    and i.partner in</span>
+<span class="s2">                                        (&#39;AFF- Finzmo API&#39;,</span>
+<span class="s2">                                        &#39;Finceptiv OÜ&#39;,</span>
+<span class="s2">                                        &#39;AFF - CREDY API&#39;,</span>
+<span class="s2">                                        &#39;Leads for finance S.L&#39;,</span>
+<span class="s2">                                        &#39;AFF - Solcredito API&#39;,</span>
+<span class="s2">                                        &#39;AFF- Doctor dinero&#39;,</span>
+<span class="s2">                                        &#39;AFF- Hyperia API&#39;,</span>
+<span class="s2">                                        &#39;IDFinance Spain S.A.U&#39;,</span>
+<span class="s2">                                        &#39;Zentropy OU&#39;,</span>
+<span class="s2">                                        &#39;AFF- Crezu&#39;,</span>
+<span class="s2">                                        &#39;Fidea&#39;,</span>
+<span class="s2">                                        &#39;7eBiz International SLU (WannaCash)&#39;,</span>
+<span class="s2">                                        &#39;Finspin&#39;)</span>
+<span class="s2">                                    and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)))</span>
+<span class="s2">                group by credit_id, date_requested</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;ES_MM_NewCL_PDL_YR_NoFA_05_24&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                select * except (last_recordd)</span>
+<span class="s2">                from (</span>
+<span class="s2">                        SELECT credit_id,</span>
+<span class="s2">                                row_number() over (partition by credit_id order by date_requested desc) as last_recordd,</span>
+<span class="s2">                                date_requested,</span>
+<span class="s2">                                unnax_aam_summary_all_accounts_total_balances_avg,</span>
+<span class="s2">                                creditorsinasnef,</span>
+<span class="s2">                                js_predictors_time_on_page,</span>
+<span class="s2">                                unn_avg_history_balance_l1m,</span>
+<span class="s2">                                unn_number_of_positive_transactions_l3m,</span>
+<span class="s2">                                seon_count_registered_emails,</span>
+<span class="s2">                                js_predictors_loan_limit_utilization,</span>
+<span class="s2">                                unnax_negative_loan_amount_l1m,</span>
+<span class="s2">                                unnax_aam_cnt_total_hold_10_days,</span>
+<span class="s2">                                age,</span>
+<span class="s2">                                (1 / (1 + exp(-(-1.123697024913863 +</span>
+<span class="s2">                                                -0.4778015636305732 *</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg +</span>
+<span class="s2">                                                -0.8816265533529996 * creditorsinasnef +</span>
+<span class="s2">                                                -1.0980277538946268 * js_predictors_time_on_page +</span>
+<span class="s2">                                                -0.6698502283145991 * unn_avg_history_balance_l1m +</span>
+<span class="s2">                                                -0.5861538004268497 * unn_number_of_positive_transactions_l3m +</span>
+<span class="s2">                                                -0.8426877824612242 * seon_count_registered_emails +</span>
+<span class="s2">                                                -0.923595949507281 * js_predictors_loan_limit_utilization +</span>
+<span class="s2">                                                -0.5859502287485123 * unnax_negative_loan_amount_l1m +</span>
+<span class="s2">                                                -1.0049070796925148 * unnax_aam_cnt_total_hold_10_days +</span>
+<span class="s2">                                                -0.618156228137539 * age))))                            as score_pred</span>
+<span class="s2">                        FROM (</span>
+<span class="s2">                                SELECT id             as credit_id,</span>
+<span class="s2">                                        date_requested,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN unnax_aam_cnt_total_hold_10_days &lt; 0.5 THEN 0.05400614699904471</span>
+<span class="s2">                                            WHEN unnax_aam_cnt_total_hold_10_days &gt;= 0.5 AND unnax_aam_cnt_total_hold_10_days &lt; 2.5</span>
+<span class="s2">                                                THEN -0.09225145644712462</span>
+<span class="s2">                                            WHEN unnax_aam_cnt_total_hold_10_days &gt;= 2.5 THEN -0.5236095422276823</span>
+<span class="s2">                                            WHEN unnax_aam_cnt_total_hold_10_days IS NULL THEN 0.05400614699904471</span>
+<span class="s2">                                            ELSE 0 END AS unnax_aam_cnt_total_hold_10_days,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &lt;</span>
+<span class="s2">                                                4.5 THEN -0.10851883939461415</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &gt;=</span>
+<span class="s2">                                                4.5 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &lt;</span>
+<span class="s2">                                                5.5 THEN -0.1847043013674491</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &gt;=</span>
+<span class="s2">                                                5.5 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &lt;</span>
+<span class="s2">                                                11.5 THEN -0.30811368752330226</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &gt;=</span>
+<span class="s2">                                                11.5 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &lt;</span>
+<span class="s2">                                                20.5 THEN 0.010416934141577627</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &gt;=</span>
+<span class="s2">                                                20.5 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &lt;</span>
+<span class="s2">                                                47.5 THEN 0.3699817828249401</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &gt;=</span>
+<span class="s2">                                                47.5 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &lt;</span>
+<span class="s2">                                                278.5 THEN 0.5657029740188415</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;), &#39;-0.10851883939461415&#39;)) &gt;=</span>
+<span class="s2">                                                278.5 THEN 0.6088999204090924</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_time_on_page, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.10851883939461415&#39;)) IS NULL THEN -0.10851883939461415</span>
+<span class="s2">                                            ELSE 0 END AS js_predictors_time_on_page,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &lt; 6.5 THEN -0.7024165823341999</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 6.5 AND</span>
+<span class="s2">                                                unn_number_of_positive_transactions_l3m &lt; 9.5 THEN -0.3946304182121356</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 9.5 AND</span>
+<span class="s2">                                                unn_number_of_positive_transactions_l3m &lt; 12.5 THEN -0.27557970378774377</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 12.5 AND</span>
+<span class="s2">                                                unn_number_of_positive_transactions_l3m &lt; 16.5 THEN -0.06650670592542474</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 16.5 AND</span>
+<span class="s2">                                                unn_number_of_positive_transactions_l3m &lt; 21.5 THEN 0.0723386823092218</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 21.5 AND</span>
+<span class="s2">                                                unn_number_of_positive_transactions_l3m &lt; 31.5 THEN 0.16979900242092505</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 31.5 AND</span>
+<span class="s2">                                                unn_number_of_positive_transactions_l3m &lt; 39.5 THEN 0.23955109543276998</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m &gt;= 39.5 THEN 0.2840104021845484</span>
+<span class="s2">                                            WHEN unn_number_of_positive_transactions_l3m IS NULL THEN -0.7024165823341999</span>
+<span class="s2">                                            ELSE 0 END AS unn_number_of_positive_transactions_l3m,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN creditorsinasnef &lt; 0.5 THEN 0.17706036383969503</span>
+<span class="s2">                                            WHEN creditorsinasnef &gt;= 0.5 THEN -1.006630032153556</span>
+<span class="s2">                                            WHEN creditorsinasnef IS NULL THEN 0.17706036383969503</span>
+<span class="s2">                                            ELSE 0 END AS creditorsinasnef,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &lt; -1401.65 THEN 0.7289706498940693</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &gt;= -1401.65 AND unnax_negative_loan_amount_l1m &lt; -851.47</span>
+<span class="s2">                                                THEN 0.5546172627492918</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &gt;= -851.47 AND unnax_negative_loan_amount_l1m &lt; -496.67</span>
+<span class="s2">                                                THEN 0.34914523488947324</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &gt;= -496.67 AND unnax_negative_loan_amount_l1m &lt; -258.93</span>
+<span class="s2">                                                THEN 0.33933215640405234</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &gt;= -258.93 AND unnax_negative_loan_amount_l1m &lt; -62.64</span>
+<span class="s2">                                                THEN 0.20556377714864515</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &gt;= -62.64 AND unnax_negative_loan_amount_l1m &lt; -21.05</span>
+<span class="s2">                                                THEN 0.143793404098022</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m &gt;= -21.05 THEN -0.34275147029552644</span>
+<span class="s2">                                            WHEN unnax_negative_loan_amount_l1m IS NULL THEN -0.34275147029552644</span>
+<span class="s2">                                            ELSE 0 END AS unnax_negative_loan_amount_l1m,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &lt; 0.01 THEN -0.1054900637324534</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 0.01 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 8.64 THEN -1.1483514695890564</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 8.64 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 23.88 THEN -0.5829904631080919</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 23.88 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 46.85 THEN -0.3239484111151415</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 46.85 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 69.03 THEN -0.14595059223673756</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 69.03 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 94.35 THEN 0.10681478713957016</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 94.35 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 128.37 THEN 0.14912554155547153</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 128.37 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 227.26 THEN 0.35692819881221105</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 227.26 AND</span>
+<span class="s2">                                                unnax_aam_summary_all_accounts_total_balances_avg &lt; 371.67 THEN 0.5591376305933322</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg &gt;= 371.67 THEN 0.6565972554328428</span>
+<span class="s2">                                            WHEN unnax_aam_summary_all_accounts_total_balances_avg IS NULL THEN -0.1054900637324534</span>
+<span class="s2">                                            ELSE 0 END AS unnax_aam_summary_all_accounts_total_balances_avg,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &lt; 1.5 THEN -0.325686894106082</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &gt;= 1.5 AND seon_count_registered_emails &lt; 2.5 THEN -0.25131937420192185</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &gt;= 2.5 AND seon_count_registered_emails &lt; 3.5 THEN -0.08482289928695907</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &gt;= 3.5 AND seon_count_registered_emails &lt; 4.5</span>
+<span class="s2">                                                THEN 0.02303239069360541</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &gt;= 4.5 AND seon_count_registered_emails &lt; 5.5</span>
+<span class="s2">                                                THEN 0.17923250248879818</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &gt;= 5.5 AND seon_count_registered_emails &lt; 6.5</span>
+<span class="s2">                                                THEN 0.22306912306969573</span>
+<span class="s2">                                            WHEN seon_count_registered_emails &gt;= 6.5 THEN 0.2320800224770625</span>
+<span class="s2">                                            WHEN seon_count_registered_emails IS NULL THEN -0.325686894106082</span>
+<span class="s2">                                            ELSE 0 END AS seon_count_registered_emails,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &lt; 25.74 THEN -0.8864572970893616</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 25.74 AND unn_avg_history_balance_l1m &lt; 54.44 THEN -0.5597433828869572</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 54.44 AND unn_avg_history_balance_l1m &lt; 78.2 THEN -0.48713738068913437</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 78.2 AND unn_avg_history_balance_l1m &lt; 102.21 THEN -0.35693091047860814</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 102.21 AND unn_avg_history_balance_l1m &lt; 134.31 THEN -0.18636303178830682</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 134.31 AND unn_avg_history_balance_l1m &lt; 209.16</span>
+<span class="s2">                                                THEN 0.06765268086643461</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 209.16 AND unn_avg_history_balance_l1m &lt; 249.45</span>
+<span class="s2">                                                THEN 0.10186233345731699</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 249.45 AND unn_avg_history_balance_l1m &lt; 302.63</span>
+<span class="s2">                                                THEN 0.213730477565804</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 302.63 AND unn_avg_history_balance_l1m &lt; 344.62</span>
+<span class="s2">                                                THEN 0.3758644071682429</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 344.62 AND unn_avg_history_balance_l1m &lt; 486.71</span>
+<span class="s2">                                                THEN 0.4588695419185158</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 486.71 AND unn_avg_history_balance_l1m &lt; 629.99</span>
+<span class="s2">                                                THEN 0.526541177004999</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m &gt;= 629.99 THEN 0.5350113890199051</span>
+<span class="s2">                                            WHEN unn_avg_history_balance_l1m IS NULL THEN -0.8864572970893616</span>
+<span class="s2">                                            ELSE 0 END AS unn_avg_history_balance_l1m,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) &lt; 0.12 THEN -0.2383082267188974</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) &gt;= 0.12 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) &lt; 0.49 THEN 0.5932666553286539</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) &gt;= 0.49 AND</span>
+<span class="s2">                                                toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) &lt; 0.56 THEN 0.16317415064129293</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) &gt;= 0.56 THEN -0.02982010963437265</span>
+<span class="s2">                                            WHEN toFloat64(ifNull(nullIf(js_predictors_loan_limit_utilization, &#39;&#39;),</span>
+<span class="s2">                                                                &#39;-0.2383082267188974&#39;)) IS NULL THEN -0.2383082267188974</span>
+<span class="s2">                                            ELSE 0 END AS js_predictors_loan_limit_utilization,</span>
+<span class="s2">                                        CASE</span>
+<span class="s2">                                            WHEN age &lt; 19.5 THEN -0.4009274098370852</span>
+<span class="s2">                                            WHEN age &gt;= 19.5 AND age &lt; 21.5 THEN -0.030939153071670944</span>
+<span class="s2">                                            WHEN age &gt;= 21.5 AND age &lt; 24.5 THEN 0.18366804046339746</span>
+<span class="s2">                                            WHEN age &gt;= 24.5 AND age &lt; 26.5 THEN 0.21622931672993984</span>
+<span class="s2">                                            WHEN age &gt;= 26.5 AND age &lt; 28.5 THEN 0.3333039567412357</span>
+<span class="s2">                                            WHEN age &gt;= 28.5 AND age &lt; 30.5 THEN 0.2314522476887888</span>
+<span class="s2">                                            WHEN age &gt;= 30.5 AND age &lt; 34.5 THEN 0.11071745554978962</span>
+<span class="s2">                                            WHEN age &gt;= 34.5 AND age &lt; 38.5 THEN 0.07772745982615947</span>
+<span class="s2">                                            WHEN age &gt;= 38.5 AND age &lt; 41.5 THEN -0.049351488576157676</span>
+<span class="s2">                                            WHEN age &gt;= 41.5 AND age &lt; 51.5 THEN -0.14617519433464876</span>
+<span class="s2">                                            WHEN age &gt;= 51.5 AND age &lt; 57.5 THEN -0.16347642399424822</span>
+<span class="s2">                                            WHEN age &gt;= 57.5 THEN -0.22608210680403906</span>
+<span class="s2">                                            WHEN age IS NULL THEN -0.4009274098370852</span>
+<span class="s2">                                            ELSE 0 END AS age</span>
+<span class="s2">                                FROM es_report.inflow i</span>
+<span class="s2">                                        left join (select credit_id,</span>
+<span class="s2">                                                            predictors_time_on_page           as js_predictors_time_on_page,</span>
+<span class="s2">                                                            predictors_loan_limit_utilization as js_predictors_loan_limit_utilization,</span>
+<span class="s2">                                                            upload_date</span>
+<span class="s2">                                                    from es_master.juicy_parsed_response</span>
+<span class="s2">                                    ) js on</span>
+<span class="s2">                                            i.id = js.credit_id and toDate(i.date_requested) = toDate(js.upload_date)</span>
+<span class="s2">                                        left join (</span>
+<span class="s2">                                    with arrayMap((d1, d2) -&gt; (dateDiff(&#39;day&#39;, d1, d2)), statements_value_date,</span>
+<span class="s2">                                                    statements_deposit_date) as transactions_hold_days</span>
+<span class="s2">                                    select borrower_id,</span>
+<span class="s2">                                            date_requested                                    as date_requested_u,</span>
+<span class="s2">                                            summary_all_accounts_total_balances_avg           as unnax_aam_summary_all_accounts_total_balances_avg,</span>
+<span class="s2">                                            summary_all_accounts_total_financial_expenses_avg as unnax_aam_summary_all_accounts_total_financial_expenses_avg,</span>
+<span class="s2">                                            summary_all_accounts_total_days_overdraft         as unnax_aam_summary_all_accounts_total_days_overdraft,</span>
+<span class="s2">                                            cnt_total_hold_10_days                            as unnax_aam_cnt_total_hold_10_days</span>
+<span class="s2">                                    from (</span>
+<span class="s2">                                            select *</span>
+<span class="s2">                                                    , row_number() over (partition by borrower_id order by upload_date desc) as last_record</span>
+<span class="s2">                                            from (</span>
+<span class="s2">                                                        select borrower_id</span>
+<span class="s2">                                                            , date_requested</span>
+<span class="s2">                                                            , summary_all_accounts_total_balances_avg           as summary_all_accounts_total_balances_avg</span>
+<span class="s2">                                                            , summary_all_accounts_total_days_overdraft         as summary_all_accounts_total_days_overdraft</span>
+<span class="s2">                                                            , summary_all_accounts_total_financial_expenses_avg as summary_all_accounts_total_financial_expenses_avg</span>
+<span class="s2">                                                            , arrayCount((hd) -&gt; (hd &gt;= 10),</span>
+<span class="s2">                                                                        transactions_hold_days)                as cnt_total_hold_10_days</span>
+<span class="s2">                                                            , unnax_mm.upload_date                              as upload_date</span>
+<span class="s2">                                                        from (select base.*, unnax_request.*</span>
+<span class="s2">                                                            from (select i.borrower_id                      as borrower_id,</span>
+<span class="s2">                                                                        date_requested,</span>
+<span class="s2">                                                                        if(expired_days_count &gt;= 30, 1, 0) as target_DPD30</span>
+<span class="s2">                                                                    from es_report.inflow i</span>
+<span class="s2">                                                                    where i.finance_type = &#39;PDL&#39;</span>
+<span class="s2">                                                                    and i.credit_number = 1</span>
+<span class="s2">                                                                    and ifNull(i.unnax_valid_report, 0) = 1</span>
+<span class="s2">                                                                    and ifNull(ifNull(i.matched_with_deleted, i.new_old), 0) = 0</span>
+<span class="s2">                                                                    and i.prev_appl_count = 0</span>
+<span class="s2">                                                                    and (i.partner not in</span>
+<span class="s2">                                                                        (&#39;AFF- Finzmo API&#39;,</span>
+<span class="s2">                                                                            &#39;Finceptiv OÜ&#39;,</span>
+<span class="s2">                                                                            &#39;AFF - CREDY API&#39;,</span>
+<span class="s2">                                                                            &#39;Leads for finance S.L&#39;,</span>
+<span class="s2">                                                                            &#39;AFF - Solcredito API&#39;,</span>
+<span class="s2">                                                                            &#39;AFF- Doctor dinero&#39;,</span>
+<span class="s2">                                                                            &#39;AFF- Hyperia API&#39;,</span>
+<span class="s2">                                                                            &#39;IDFinance Spain S.A.U&#39;,</span>
+<span class="s2">                                                                            &#39;Zentropy OU&#39;,</span>
+<span class="s2">                                                                            &#39;AFF- Crezu&#39;,</span>
+<span class="s2">                                                                            &#39;Fidea&#39;,</span>
+<span class="s2">                                                                            &#39;7eBiz International SLU (WannaCash)&#39;,</span>
+<span class="s2">                                                                            &#39;Finspin&#39;)</span>
+<span class="s2">                                                                        or i.partner is null)</span>
+<span class="s2">                                                                    and matured_30d_fpd = 1</span>
+<span class="s2">                                                                    and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                                                                    and status in (&#39;SOLD&#39;, &#39;EXPIRED&#39;, &#39;COMPLETED&#39;, &#39;ACTIVE&#39;)) base</span>
+<span class="s2">                                                                    asof</span>
+<span class="s2">                                                                    left join es_debezium.unnax_request</span>
+<span class="s2">                                                                                on base.borrower_id = unnax_request.borrower_id</span>
+<span class="s2">                                                                                    and</span>
+<span class="s2">                                                                                    base.date_requested &gt;= unnax_request.date_received</span>
+<span class="s2">                                                                ) base</span>
+<span class="s2">                                                                asof</span>
+<span class="s2">                                                                left join es_master.unnax_parsed_response unnax_mm</span>
+<span class="s2">                                                                        on unnax_mm.request_code = base.request_code</span>
+<span class="s2">                                                                            and base.date_requested &gt;= unnax_mm.upload_date</span>
+<span class="s2">                                                        ) unnax_all</span>
+<span class="s2">                                            )</span>
+<span class="s2">                                    WHERE last_record = 1) u on i.borrower_id = u.borrower_id</span>
+<span class="s2">                                    and toDate(i.date_requested) = toDate(u.date_requested_u)</span>
+<span class="s2">                                WHERE finance_type = &#39;PDL&#39;</span>
+<span class="s2">                                    and credit_number = 1</span>
+<span class="s2">                                    and ifNull(unnax_valid_report, 0) = 1</span>
+<span class="s2">                                    and ifNull(ifNull(matched_with_deleted, new_old), 0) = 0</span>
+<span class="s2">                                    and prev_appl_count = 0</span>
+<span class="s2">                                    and (partner not in</span>
+<span class="s2">                                        (&#39;AFF- Finzmo API&#39;,</span>
+<span class="s2">                                        &#39;Finceptiv OÜ&#39;,</span>
+<span class="s2">                                        &#39;AFF - CREDY API&#39;,</span>
+<span class="s2">                                        &#39;Leads for finance S.L&#39;,</span>
+<span class="s2">                                        &#39;AFF - Solcredito API&#39;,</span>
+<span class="s2">                                        &#39;AFF- Doctor dinero&#39;,</span>
+<span class="s2">                                        &#39;AFF- Hyperia API&#39;,</span>
+<span class="s2">                                        &#39;IDFinance Spain S.A.U&#39;,</span>
+<span class="s2">                                        &#39;Zentropy OU&#39;,</span>
+<span class="s2">                                        &#39;AFF- Crezu&#39;,</span>
+<span class="s2">                                        &#39;Fidea&#39;,</span>
+<span class="s2">                                        &#39;7eBiz International SLU (WannaCash)&#39;,</span>
+<span class="s2">                                        &#39;Finspin&#39;)</span>
+<span class="s2">                                    or partner is null)</span>
+<span class="s2">                                    and matured_30d_fpd = 1</span>
+<span class="s2">                                    and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                                    and status in (&#39;SOLD&#39;, &#39;EXPIRED&#39;, &#39;COMPLETED&#39;, &#39;ACTIVE&#39;)))</span>
+<span class="s2">                where last_recordd = 1</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;ES_MM_NewCL_Fraud_04_24&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT i.id                                           as credit_id,</span>
+<span class="s2">                    i.date_requested                                  as date_requested,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i.equifaxmicrofinancescore = &#39;-&#39; OR i.equifaxmicrofinancescore IS NULL THEN -1.1237826485103142</span>
+<span class="s2">                        WHEN CAST(replaceAll(i.equifaxmicrofinancescore, &#39;-&#39;, &#39;0&#39;) AS Float64) &lt; 3.5</span>
+<span class="s2">                            THEN 0.2622145042430963</span>
+<span class="s2">                        WHEN CAST(replaceAll(i.equifaxmicrofinancescore, &#39;-&#39;, &#39;0&#39;) AS Float64) &gt;= 3.5 AND</span>
+<span class="s2">                                CAST(replaceAll(i.equifaxmicrofinancescore, &#39;-&#39;, &#39;0&#39;) AS Float64) &lt; 4.5 THEN -0.1883859447293594</span>
+<span class="s2">                        WHEN CAST(replaceAll(i.equifaxmicrofinancescore, &#39;-&#39;, &#39;0&#39;) AS Float64) &gt;= 4.5 AND</span>
+<span class="s2">                                CAST(replaceAll(i.equifaxmicrofinancescore, &#39;-&#39;, &#39;0&#39;) AS Float64) &lt; 5.5 THEN -0.4272034611496627</span>
+<span class="s2">                        WHEN CAST(replaceAll(i.equifaxmicrofinancescore, &#39;-&#39;, &#39;0&#39;) AS Float64) &gt;= 5.5 THEN -0.7254613990355536</span>
+<span class="s2">                        ELSE 0 END                                    AS equifaxmicrofinancescore_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i.age &lt; 20.5 THEN -0.3271830285210328</span>
+<span class="s2">                        WHEN i.age &gt;= 20.5 AND i.age &lt; 22.5 THEN -0.036377411429934</span>
+<span class="s2">                        WHEN i.age &gt;= 22.5 AND i.age &lt; 25.5 THEN 0.2230127966446526</span>
+<span class="s2">                        WHEN i.age &gt;= 25.5 AND i.age &lt; 27.5 THEN 0.182030312233238</span>
+<span class="s2">                        WHEN i.age &gt;= 27.5 AND i.age &lt; 32.5 THEN 0.1086436414218923</span>
+<span class="s2">                        WHEN i.age &gt;= 32.5 AND i.age &lt; 35.5 THEN 0.0281751780433987</span>
+<span class="s2">                        WHEN i.age &gt;= 35.5 AND i.age &lt; 38.5 THEN 0.0102362447944224</span>
+<span class="s2">                        WHEN i.age &gt;= 38.5 AND i.age &lt; 57.5 THEN -0.0239197772025052</span>
+<span class="s2">                        WHEN i.age &gt;= 57.5 THEN -0.0952224468209501</span>
+<span class="s2">                        WHEN i.age IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                    AS age_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN phone_mobile_bor_cnt_match_completed &lt; 0.5 THEN -0.0783634862314368</span>
+<span class="s2">                        WHEN phone_mobile_bor_cnt_match_completed &gt;= 0.5 THEN 0.7721155891252449</span>
+<span class="s2">                        WHEN phone_mobile_bor_cnt_match_completed IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                    AS phone_mobile_bor_cnt_match_completed_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN api_ping_different_phone_before_1st_issuance &lt; 0.5 THEN 0.0707769655714418</span>
+<span class="s2">                        WHEN api_ping_different_phone_before_1st_issuance &gt;= 0.5 THEN -0.4918380888022451</span>
+<span class="s2">                        WHEN api_ping_different_phone_before_1st_issuance IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                    AS api_ping_different_phone_before_1st_issuance_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 4.5 THEN 0.0344114327526936</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 4.5 AND</span>
+<span class="s2">                                toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 5.5 THEN -0.1582236365427853</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 5.5 AND</span>
+<span class="s2">                                toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 8.5 THEN -0.281765804228693</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 8.5 AND</span>
+<span class="s2">                                toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 13.5 THEN -0.204560222950332</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 13.5 AND</span>
+<span class="s2">                                toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 22.5 THEN 0.068886909144934</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 22.5 AND</span>
+<span class="s2">                                toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 48.5 THEN 0.2831644005037095</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 48.5 AND</span>
+<span class="s2">                                toFloat32OrZero(ag_jc.predictors_time_on_page) &lt; 178.5 THEN 0.5947528316630661</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) &gt;= 178.5 THEN 0.6466551601613038</span>
+<span class="s2">                        WHEN toFloat32OrZero(ag_jc.predictors_time_on_page) IS NULL THEN -0.3158235720008928</span>
+<span class="s2">                        ELSE 0 END                                    AS ag_jc_predictors_time_on_page_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i_seon.seon_E113 &lt; 0.5 THEN -0.1735470167442501</span>
+<span class="s2">                        WHEN i_seon.seon_E113 &gt;= 0.5 THEN 0.2439497739701477</span>
+<span class="s2">                        WHEN i_seon.seon_E113 IS NULL THEN 0.0</span>
+<span class="s2">                        ELSE 0 END                                    AS i_seon_seon_E113_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN i.user_device_name IN (&#39;WEB&#39;, &#39;IOS_MOBILE&#39;, &#39;ANDROID&#39;) THEN 0.6044158375376059</span>
+<span class="s2">                        WHEN i.user_device_name IN (&#39;ANDROID_MOBILE&#39;, &#39;DESKTOP_WEB&#39;) THEN 0.2436869360665796</span>
+<span class="s2">                        WHEN i.user_device_name IN (&#39;MOBILE&#39;, &#39;MOBILE_WEB&#39;) THEN -0.0489719730218749</span>
+<span class="s2">                        WHEN i.user_device_name IS NULL THEN -0.9065738327159188</span>
+<span class="s2">                        ELSE -0.0489719730218749 END                  AS user_device_name_mod_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN pr_deyde.population IN</span>
+<span class="s2">                                (&#39;GRANOLLERS&#39;, &#39;ALCOY-ALCOI&#39;, &#39;GETAFE&#39;, &#39;SANT BOI DE LLOBREGAT&#39;, &#39;VILADECANS&#39;,</span>
+<span class="s2">                                &#39;PINTO&#39;, &#39;VILAFRANCA DEL PENEDES&#39;, &#39;VALDEMORO&#39;, &#39;RIVAS-VACIAMADRID&#39;,</span>
+<span class="s2">                                &#39;ROQUETAS DE MAR&#39;, &#39;VILANOVA I LA GELTRU&#39;, &#39;TORREVIEJA&#39;, &#39;CORNELLA DE LLOBREGAT&#39;,</span>
+<span class="s2">                                &#39;TOLEDO&#39;, &#39;FIGUERES&#39;, &#39;HUESCA&#39;, &#39;MARBELLA&#39;, &#39;MOSTOLES&#39;, &#39;FUENLABRADA&#39;,</span>
+<span class="s2">                                &#39;DONOSTIA-SAN SEBASTIAN&#39;, &#39;PUERTO DEL ROSARIO&#39;, &#39;GIRONA&#39;, &#39;EL PRAT DE LLOBREGAT&#39;,</span>
+<span class="s2">                                &#39;MADRID&#39;, &#39;LORCA&#39;, &#39;ALCALA DE HENARES&#39;) THEN 0.2913278210433576</span>
+<span class="s2">                        WHEN pr_deyde.population IN</span>
+<span class="s2">                                (&#39;TORREJON DE ARDOZ&#39;, &#39;ARGANDA DEL REY&#39;, &#39;RUBI&#39;, &#39;ALCORCON&#39;, &#39;BARCELONA&#39;, &#39;ZARAGOZA&#39;,</span>
+<span class="s2">                                &#39;MAJADAHONDA&#39;, &#39;SEGOVIA&#39;, &#39;LA ESTACION (COLLADO VILLALBA)&#39;) THEN 0.1918604915090167</span>
+<span class="s2">                        WHEN pr_deyde.population IN</span>
+<span class="s2">                                (&#39;SABADELL&#39;, &#39;GUADALAJARA&#39;, &#39;SANTIAGO DE COMPOSTELA&#39;, &#39;ALCOBENDAS&#39;, &#39;TARRAGONA&#39;,</span>
+<span class="s2">                                &#39;PARLA&#39;, &#39;VALENCIA&#39;, &#39;BILBAO&#39;, &#39;VITORIA-GASTEIZ&#39;, &#39;L&#39;&#39;HOSPITALET DE LLOBREGAT&#39;,</span>
+<span class="s2">                                &#39;SANTANDER&#39;, &#39;BENIDORM&#39;, &#39;ALCALA DE GUADAIRA&#39;, &#39;IGUALADA&#39;, &#39;TALAVERA DE LA REINA&#39;)</span>
+<span class="s2">                            THEN 0.1283056766275212</span>
+<span class="s2">                        WHEN pr_deyde.population IN</span>
+<span class="s2">                                (&#39;ELCHE-ELX&#39;, &#39;LOGROÑO&#39;, &#39;ELDA&#39;, &#39;TERRASSA&#39;, &#39;LLEIDA&#39;, &#39;PAMPLONA-IRUÑA&#39;, &#39;OURENSE&#39;,</span>
+<span class="s2">                                &#39;ARRECIFE&#39;, &#39;ALBACETE&#39;, &#39;PALENCIA&#39;, &#39;CARTAGENA&#39;, &#39;COLMENAR VIEJO&#39;,</span>
+<span class="s2">                                &#39;CASTELLO DE LA PLANA&#39;, &#39;OLOT&#39;, &#39;LEON&#39;, &#39;A CORUÑA&#39;, &#39;BADALONA&#39;, &#39;TORRENT&#39;,</span>
+<span class="s2">                                &#39;VALLADOLID&#39;, &#39;JAEN&#39;, &#39;MOTRIL&#39;, &#39;ARANJUEZ&#39;, &#39;MATARO&#39;, &#39;ALICANTE-ALACANT&#39;, &#39;CORDOBA&#39;,</span>
+<span class="s2">                                &#39;SAN VICENTE DE BARAKALDO&#39;) THEN -0.0254826670526395</span>
+<span class="s2">                        WHEN pr_deyde.population IN</span>
+<span class="s2">                                (&#39;VIC&#39;, &#39;CADIZ&#39;, &#39;SEVILLA&#39;, &#39;LUGO&#39;, &#39;SAN FERNANDO&#39;, &#39;BURGOS&#39;, &#39;OVIEDO&#39;, &#39;REUS&#39;,</span>
+<span class="s2">                                &#39;POZUELO DE ALARCON&#39;, &#39;SANTA COLOMA DE GRAMENET&#39;, &#39;MURCIA&#39;, &#39;MANRESA&#39;, &#39;PONTEVEDRA&#39;,</span>
+<span class="s2">                                &#39;EIVISSA&#39;, &#39;MALAGA&#39;, &#39;SALAMANCA&#39;, &#39;PALMA&#39;, &#39;LEGANES&#39;, &#39;GIJON&#39;, &#39;GRANADA&#39;, &#39;HUELVA&#39;,</span>
+<span class="s2">                                &#39;SAN SEBASTIAN DE LOS REYES&#39;, &#39;CHICLANA DE LA FRONTERA&#39;, &#39;ESTEPONA&#39;) THEN -0.1831454540415009</span>
+<span class="s2">                        WHEN pr_deyde.population IN</span>
+<span class="s2">                                (&#39;COSLADA&#39;, &#39;ALMERIA&#39;, &#39;SANTA CRUZ DE TENERIFE&#39;, &#39;VIGO&#39;, &#39;MERIDA&#39;, &#39;MELILLA&#39;,</span>
+<span class="s2">                                &#39;BADAJOZ&#39;, &#39;SAN CRISTOBAL DE LA LAGUNA&#39;, &#39;DOS HERMANAS&#39;, &#39;LA LINEA DE LA CONCEPCION&#39;,</span>
+<span class="s2">                                &#39;JEREZ DE LA FRONTERA&#39;, &#39;LAS PALMAS DE GRAN CANARIA&#39;, &#39;CACERES&#39;, &#39;ALGECIRAS&#39;,</span>
+<span class="s2">                                &#39;AVILES&#39;, &#39;CIUDAD REAL&#39;, &#39;CUENCA&#39;, &#39;VILA-REAL&#39;, &#39;GANDIA&#39;, &#39;CASTELLDEFELS&#39;, &#39;CEUTA&#39;,</span>
+<span class="s2">                                &#39;FERROL&#39;, &#39;FUENGIROLA&#39;, &#39;EL PUERTO DE SANTA MARIA&#39;) THEN -0.4236712106163363</span>
+<span class="s2">                        WHEN pr_deyde.population IS NULL THEN -0.7553428629919954</span>
+<span class="s2">                        ELSE -0.0254826670526395 END                  AS pr_deyde_population_WOE,</span>
+<span class="s2">                    CASE</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IN</span>
+<span class="s2">                                (&#39;ca-ES&#39;, &#39;es-ES|es|ca|en&#39;, &#39;es-ES|es|en|ca&#39;, &#39;ca-ES|ca|es&#39;,</span>
+<span class="s2">                                &#39;es|es-ES|en|en-GB|en-US&#39;, &#39;es-419&#39;, &#39;es-ES|ca-ES|ca|es&#39;, &#39;es-ES|es|en|gl&#39;,</span>
+<span class="s2">                                &#39;es-ES|es-US|en-US&#39;, &#39;es-ES|es|fr&#39;, &#39;en-GB|en-US|en&#39;, &#39;en-US&#39;, &#39;es-ES|es|pt&#39;,</span>
+<span class="s2">                                &#39;es-US|es-419|es&#39;, &#39;es-US|es-419|es|en&#39;) THEN 0.478456523639299</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IN</span>
+<span class="s2">                                (&#39;es-ES|en-GB|en|es&#39;, &#39;es-419|es&#39;, &#39;es-US|en-US&#39;, &#39;es-ES&#39;) THEN 0.1732088826543005</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IN</span>
+<span class="s2">                                (&#39;es-ES|en-US|en|es&#39;, &#39;es-ES|es|ca&#39;, &#39;es-ES|en-US&#39;, &#39;es-ES|es|en-GB|en-US|en&#39;)</span>
+<span class="s2">                            THEN 0.075215021175508</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IN (&#39;en-US|en|es&#39;, &#39;es-ES|es|en&#39;, &#39;es-ES|es|en-US|en&#39;)</span>
+<span class="s2">                            THEN 0.0289829977819726</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IN (&#39;es-ES|es|de&#39;, &#39;en-GB&#39;, &#39;es-es&#39;)</span>
+<span class="s2">                            THEN 0.0015642134321947</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IN</span>
+<span class="s2">                                (&#39;es-ES|es|gl&#39;, &#39;es-ES|es&#39;, &#39;es&#39;, &#39;en-US|en&#39;, &#39;es-US&#39;, &#39;fr-FR&#39;, &#39;es-ES|es-US|es&#39;,</span>
+<span class="s2">                                &#39;es-ES|es|ar&#39;) THEN -0.1504273158269091</span>
+<span class="s2">                        WHEN ag_jc.predictors_pixel_language IS NULL THEN -0.3115577425127958</span>
+<span class="s2">                        ELSE 0.0015642134321947 END                   AS ag_jc_predictors_pixel_language_WOE,</span>
+<span class="s2">                    (1 / (1 + exp(-(-0.0013068227443430547 +</span>
+<span class="s2">                                    -0.4793299500001379 * ag_jc_predictors_pixel_language_WOE +</span>
+<span class="s2">                                    -0.6625224625769108 * user_device_name_mod_WOE +</span>
+<span class="s2">                                    -0.6632814069680865 * ag_jc_predictors_time_on_page_WOE +</span>
+<span class="s2">                                    -0.7273040283151976 * pr_deyde_population_WOE +</span>
+<span class="s2">                                    -0.7502658657480906 * i_seon_seon_E113_WOE +</span>
+<span class="s2">                                    -0.8281752776055961 * phone_mobile_bor_cnt_match_completed_WOE +</span>
+<span class="s2">                                    -0.8856258499751395 *</span>
+<span class="s2">                                    api_ping_different_phone_before_1st_issuance_WOE +</span>
+<span class="s2">                                    -0.934426895389939 * equifaxmicrofinancescore_WOE +</span>
+<span class="s2">                                    -0.9363320678915343 * age_WOE)))) as score_pred</span>
+<span class="s2">                FROM es_report.inflow i</span>
+<span class="s2">                        left join es_report.credit_payment_group_by_credit_id cp</span>
+<span class="s2">                                on cp.credit_id = i.id</span>
+<span class="s2">                        left join (select credit_id,</span>
+<span class="s2">                                        min(payment_date) as min_payment_date,</span>
+<span class="s2">                                        max(payment_date) as max_payment_date</span>
+<span class="s2">                                    from es_report.original_credit_payment_schedule</span>
+<span class="s2">                                    group by credit_id) os1</span>
+<span class="s2">                                on i.id = os1.credit_id</span>
+<span class="s2">                        left join es_report.partner_integration_by_pin pibp</span>
+<span class="s2">                                on pibp.passport_identification_number_sip_hash_128 =</span>
+<span class="s2">                                    i.passport_identification_number_sip_hash_128</span>
+<span class="s2">                        left join es_report.inflow_borrower ib on i.id = ib.credit_id</span>
+<span class="s2">                        left join es_report.inflow_cp_data icd2 on i.id = icd2.credit_request_id</span>
+<span class="s2">                        left join</span>
+<span class="s2">                    (</span>
+<span class="s2">                        SELECT *</span>
+<span class="s2">                        FROM (</span>
+<span class="s2">                                SELECT *,</span>
+<span class="s2">                                        ROW_NUMBER() OVER (PARTITION BY credit_id ORDER BY upload_date) AS rn</span>
+<span class="s2">                                FROM es_master.juicy_parsed_response</span>
+<span class="s2">                                )</span>
+<span class="s2">                        WHERE rn = 1</span>
+<span class="s2">                        ) as ag_jc</span>
+<span class="s2">                    on i.id = ag_jc.credit_id and MONTH(i.date_requested) = MONTH(ag_jc.upload_date)</span>
+<span class="s2">                        left join es_report.inflow_cp_seon_data as i_seon on i.id = i_seon.credit_request_id</span>
+<span class="s2">                        left join es_master.seon_aggregates ag_seon on i.id = ag_seon.credit_request_id</span>
+<span class="s2">                        left join</span>
+<span class="s2">                    (</span>
+<span class="s2">                        SELECT *</span>
+<span class="s2">                        FROM (</span>
+<span class="s2">                                SELECT *,</span>
+<span class="s2">                                        ROW_NUMBER() OVER (PARTITION BY credit_request_id ORDER BY upload_date) AS rn</span>
+<span class="s2">                                FROM es_master.deyde_parsed_response</span>
+<span class="s2">                                )</span>
+<span class="s2">                        WHERE rn = 1</span>
+<span class="s2">                        ) as pr_deyde</span>
+<span class="s2">                    on i.id = pr_deyde.credit_request_id and</span>
+<span class="s2">                        MONTH(i.date_requested) =</span>
+<span class="s2">                        MONTH(pr_deyde.upload_date)</span>
+<span class="s2">                        LEFT JOIN (SELECT user_id                                                           as id,</span>
+<span class="s2">                                        groupArray(ifNull(login_date, toDateTime(&#39;1970-01-01 00:00:00&#39;))) as login_dates,</span>
+<span class="s2">                                        groupArray(ifNull(browser, &#39;nan&#39;))                                as browsers,</span>
+<span class="s2">                                        groupArray(ifNull(device_name, &#39;nan&#39;))                            as device_names,</span>
+<span class="s2">                                        groupArray(ifNull(device_os_type, &#39;nan&#39;))                         as device_os_types,</span>
+<span class="s2">                                        groupArray(ifNull(auth_source, &#39;nan&#39;))                            as auth_sources</span>
+<span class="s2">                                    FROM (select *</span>
+<span class="s2">                                        from es_debezium.user_login_history ul</span>
+<span class="s2">                                        ORDER BY ul.login_date desc) ul</span>
+<span class="s2">                                    group by user_id) ul</span>
+<span class="s2">                                ON i.user_account_id = ul.id</span>
+<span class="s2">                WHERE i.credit_number = 1</span>
+<span class="s2">                and i.status not in (&#39;CANCELLED&#39;)</span>
+<span class="s2">                and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">model_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;cp_&quot;</span><span class="p">):</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                select i.id             as credit_id,</span>
+<span class="s2">                    i.date_requested    as date_requested,</span>
+<span class="s2">                    1 - cp.score / 1000     as score_pred,</span>
+<span class="s2">                    cp.log</span>
+<span class="s2">                from es_debezium.</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> cp</span>
+<span class="s2">                        left join es_report.inflow i on cp.credit_request_id = i.id</span>
+<span class="s2">                where status in (&#39;SOLD&#39;, &#39;EXPIRED&#39;, &#39;COMPLETED&#39;, &#39;ACTIVE&#39;)</span>
+<span class="s2">                and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;date_requested&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;credit_id&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="collect_target_scoring">
+<a class="viewcode-back" href="../../../ESMM.Core.html#ESMM.Core.DataCollect.collect_target_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_target_scoring</span><span class="p">(</span><span class="n">db_client</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dpd</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">&quot;ES_MM_NewCL_Fraud_04_24&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cp_one_zero_fraud_scoring_all_new&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects target from the database based on the specified model name and days past due (dpd).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        model_name (str): The name of the model for which target scoring data is being collected.</span>
+<span class="sd">        dpd (int): The number of days past due used to determine the target variable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A DataFrame containing the target.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the model name is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT id as credit_id,</span>
+<span class="s2">                    open_gate_ind as open_gate_flag,</span>
+<span class="s2">                    if(expired_days_count &gt;= </span><span class="si">{</span><span class="n">dpd</span><span class="si">}</span><span class="s2">, 1, 0) as target</span>
+<span class="s2">                FROM es_report.inflow</span>
+<span class="s2">                WHERE toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                        and due_date + interval </span><span class="si">{</span><span class="n">dpd</span><span class="si">}</span><span class="s2"> day &lt; today()</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                WITH audience as (SELECT id         as credit_id</span>
+<span class="s2">                                    , status        as status</span>
+<span class="s2">                                    , open_gate_ind as open_gate_ind</span>
+<span class="s2">                                FROM es_report.inflow</span>
+<span class="s2">                                WHERE credit_number = 1</span>
+<span class="s2">                                    and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                                    and due_date + interval 30 day &lt; today()</span>
+<span class="s2">                                    and status in (&#39;SOLD&#39;, &#39;EXPIRED&#39;, &#39;COMPLETED&#39;, &#39;ACTIVE&#39;)),</span>
+<span class="s2">                    no_contact_with_client_table AS (SELECT credit_id,</span>
+<span class="s2">                                                                COUNT(*)                                                          as tot_number_contacts,</span>
+<span class="s2">                                                                CASE WHEN SUM(indiv_no_contact_mark) = COUNT(*) THEN 1 ELSE 0 END AS global_no_contact_mark,</span>
+<span class="s2">                                                                SUM(CASE</span>
+<span class="s2">                                                                        WHEN new_contact_status = &#39;BORROWER_DID_NOT_TAKE_CREDIT&#39; THEN 1</span>
+<span class="s2">                                                                        ELSE 0 END)                                               AS response_borrower_did_not_take_cred</span>
+<span class="s2">                                                        FROM (</span>
+<span class="s2">                                                                SELECT cp.credit_id,</span>
+<span class="s2">                                                                        new_contact_status,</span>
+<span class="s2">                                                                        CASE</span>
+<span class="s2">                                                                            WHEN new_contact_status IN (&#39;PHONE_NO_ANSWER&#39;,</span>
+<span class="s2">                                                                                                        &#39;THIRD_PERSON_DONT_KNOW_CLIENT_NUMBER&#39;,</span>
+<span class="s2">                                                                                                        &#39;THIRD_PERSON&#39;,</span>
+<span class="s2">                                                                                                        &#39;BORROWER_DID_NOT_TAKE_CREDIT&#39;,</span>
+<span class="s2">                                                                                                        &#39;MESSAGE_VOICE_MAIL&#39;,</span>
+<span class="s2">                                                                                                        &#39;REFUSE_TO_COMMUNICATE&#39;</span>
+<span class="s2">                                                                                ) THEN 1</span>
+<span class="s2">                                                                            ELSE 0</span>
+<span class="s2">                                                                            END AS indiv_no_contact_mark</span>
+<span class="s2">                                                                FROM es_report.collection_action_promise cp</span>
+<span class="s2">                                                                        LEFT JOIN (</span>
+<span class="s2">                                                                    SELECT credit_id,</span>
+<span class="s2">                                                                            min(payment_date) AS min_payment_date,</span>
+<span class="s2">                                                                            max(payment_date) AS max_payment_date</span>
+<span class="s2">                                                                    FROM es_report.original_credit_payment_schedule</span>
+<span class="s2">                                                                    GROUP BY credit_id</span>
+<span class="s2">                                                                    ) os1 ON cp.credit_id = os1.credit_id</span>
+<span class="s2">                                                                WHERE toDate(call_date) &gt;= &#39;2023-02-01&#39;</span>
+<span class="s2">                                                                    AND cp.credit_number = 1</span>
+<span class="s2">                                                                    AND cp.type_of_borrower = &#39;New&#39;</span>
+<span class="s2">                                                                    AND cp.channel = &#39;PHONE&#39;</span>
+<span class="s2">                                                                    AND call_date &lt;= os1.min_payment_date + interval </span><span class="si">{</span><span class="n">dpd</span><span class="si">}</span><span class="s2"> day</span>
+<span class="s2">                                                                )</span>
+<span class="s2">                                                        GROUP BY credit_id)</span>
+<span class="s2">                SELECT au.credit_id as credit_id</span>
+<span class="s2">                    , open_gate_ind as open_gate_flag</span>
+<span class="s2">                    , case</span>
+<span class="s2">                        when (t.global_no_contact_mark = 1 and au.status NOT IN (&#39;COMPLETED&#39;))</span>
+<span class="s2">                            or (t.response_borrower_did_not_take_cred &gt;= 1 and au.status NOT IN (&#39;COMPLETED&#39;))</span>
+<span class="s2">                            or (t.tot_number_contacts = 0 and au.status NOT IN (&#39;COMPLETED&#39;))</span>
+<span class="s2">                            THEN 1</span>
+<span class="s2">                        ELSE 0 END AS target</span>
+<span class="s2">                FROM audience au</span>
+<span class="s2">                        LEFT JOIN no_contact_with_client_table AS t</span>
+<span class="s2">                                on au.credit_id = t.credit_id</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

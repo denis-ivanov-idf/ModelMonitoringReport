@@ -1,0 +1,21 @@
+ESPlazoOldPD.Core package
+=========================
+
+Submodules
+----------
+
+ESPlazoOldPD.Core.DataCollect module
+------------------------------------
+
+.. automodule:: ESPlazoOldPD.Core.DataCollect
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ESPlazoOldPD.Core.basic\_scoring module
+---------------------------------------
+
+.. automodule:: ESPlazoOldPD.Core.basic_scoring
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,37 @@
+MonitoringReport.monitoring\_tests package
+==========================================
+
+Submodules
+----------
+
+MonitoringReport.monitoring\_tests.BasicChecks module
+-----------------------------------------------------
+
+.. automodule:: MonitoringReport.monitoring_tests.BasicChecks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+MonitoringReport.monitoring\_tests.MonitoringReport module
+----------------------------------------------------------
+
+.. automodule:: MonitoringReport.monitoring_tests.MonitoringReport
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+MonitoringReport.monitoring\_tests.ScoreStability module
+--------------------------------------------------------
+
+.. automodule:: MonitoringReport.monitoring_tests.ScoreStability
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+MonitoringReport.monitoring\_tests.StabilityTests module
+--------------------------------------------------------
+
+.. automodule:: MonitoringReport.monitoring_tests.StabilityTests
+   :members:
+   :undoc-members:
+   :show-inheritance:

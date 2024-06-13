@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How-to guides &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="DS model analytics" href="modules.html" />
+    <link rel="prev" title="Welcome to DS model monitoring’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How-to guides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-cloning-a-repository">Step 1 — cloning a repository</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-model-config">Step 2 — model config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-features-collection">Step 3 — features collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-target-collection">Step 4 — target collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-creating-table-with-scores">Step 5 — creating table with scores</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-creating-report">Step 6 — creating report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-7-airflow-dag">Step 7 — airflow dag</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-8-email">Step 8 — email</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">How-to guides</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-guides">
+<h1>How-to guides<a class="headerlink" href="#how-to-guides" title="Link to this heading"></a></h1>
+<p>You can use the following approach to implement your models for monthly monitoring.
+Descriptions of all used modules and functions can be found in the relevant sections of the documentation.</p>
+<section id="step-1-cloning-a-repository">
+<h2>Step 1 — cloning a repository<a class="headerlink" href="#step-1-cloning-a-repository" title="Link to this heading"></a></h2>
+<p>First, you need to clone a repository <a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox">analytics-sandbox</a></p>
+</section>
+<section id="step-2-model-config">
+<h2>Step 2 — model config<a class="headerlink" href="#step-2-model-config" title="Link to this heading"></a></h2>
+<p>Next you need to add the model name and necessary configs to the <code class="docutils literal notranslate"><span class="pre">Core/models_config.conf</span></code> file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To implement the model, do not forget to select your project.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/ESMM">ESMM</a> — for ES MoneyMan models.</p></li>
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/ESPlazoOldPD">ESPlazoOldPD</a> — for ES Plazo old models.</p></li>
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/ESPlazoTopUp">ESPlazoTopUp</a> — for ES Plazo TopUp models.</p></li>
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/tree/main/DS_model_analytics/MXMM">MXMM</a> — for MX MoneyMan models.</p></li>
+</ul>
+</div></blockquote>
+</div>
+<p>Example if you can get scores from ClickHouse:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">ES_MM_NEW_NEW_PLN_UNNAX_202402</span><span class="p">]</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="n">ES_MM_NewCl_PLN_YR_02_2024</span>
+<span class="n">label</span> <span class="o">=</span> <span class="n">og_short</span>
+</pre></div>
+</div>
+<p>Example if you need to get scores directly using the model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">ES_PLAZO_CURR_CLIENT_PD_04_2024</span><span class="p">]</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="n">es_plazo_curr_client_pd_04_2024</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="o">/</span><span class="n">dev_mm</span><span class="o">/</span><span class="n">DS_model_analytics</span><span class="o">/</span><span class="n">ESPlazoTopUp</span><span class="o">/</span><span class="n">Models</span><span class="o">/</span><span class="n">es_plazo_curr_client_pd_04_2024_v2</span><span class="o">.</span><span class="n">cbm</span>
+<span class="n">label</span> <span class="o">=</span> <span class="n">og_short</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-features-collection">
+<h2>Step 3 — features collection<a class="headerlink" href="#step-3-features-collection" title="Link to this heading"></a></h2>
+<p>Then you need to prepare an <strong>SQL script</strong> for collecting data and add it to the <code class="docutils literal notranslate"><span class="pre">Core.DataCollect.py</span></code> module
+in the <code class="docutils literal notranslate"><span class="pre">collect_data_scoring</span></code> function using the appropriate syntax. You can use CP tables
+if necessary with logged features and their values.
+Later in <strong>Step 5</strong> you can use <code class="docutils literal notranslate"><span class="pre">create_df_from_log</span></code> from the <code class="docutils literal notranslate"><span class="pre">DataLogParsing.py</span></code> module.</p>
+</section>
+<section id="step-4-target-collection">
+<h2>Step 4 — target collection<a class="headerlink" href="#step-4-target-collection" title="Link to this heading"></a></h2>
+<p>Then you need to add a target. To do this, you can use the <code class="docutils literal notranslate"><span class="pre">collect_target_scoring</span></code> function in <code class="docutils literal notranslate"><span class="pre">Core.DataCollect.py</span></code> module,
+which already implements the collection of the main and short targets for most of our models.
+If there is a need to use a different target, you can add its collection to this function using the appropriate syntax.</p>
+</section>
+<section id="step-5-creating-table-with-scores">
+<h2>Step 5 — creating table with scores<a class="headerlink" href="#step-5-creating-table-with-scores" title="Link to this heading"></a></h2>
+<p>Next you need to prepare a table with all IDs, date, features, open gate flag, targets, scores.
+To do this, you need to use the <code class="docutils literal notranslate"><span class="pre">score_model</span></code> function from the <code class="docutils literal notranslate"><span class="pre">Core.basic_scoring.py</span></code> module.
+It implements connecting to ClickHouse, loading sql from the previous steps, combining features and targets,
+scoring (if scoring is not implemented in the sql script). Also you can use <code class="docutils literal notranslate"><span class="pre">create_df_from_log</span></code>
+from the <code class="docutils literal notranslate"><span class="pre">DataLogParsing.py</span></code> module to receive data.</p>
+<p>Then a table will create with all the data in ClickHouse.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The path to the table is specified in the <code class="docutils literal notranslate"><span class="pre">DS_model_analytics/report_config</span></code>:</p>
+<ul class="simple">
+<li><p>ESMM — risk_db.esmm_monitoring_data + model name</p></li>
+<li><p>ESPlazoOldPD — risk_db.old_pd_monitoring_data + model name</p></li>
+<li><p>ESPlazoTopUp — risk_db.ids_monitoring_data + model name</p></li>
+<li><p>MXMM — risk_db.ad_monitoring_data + model name</p></li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This table will be used later to create a report.
+Therefore, it is necessary to adhere to the structure below.
+Or any other, but you will need to change the template described in the next step.</p>
+</div>
+<p>Table example:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Table with scores</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+<col style="width: 11.1%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>credit_id or borrower_id</p></th>
+<th class="head"><p>date_requested</p></th>
+<th class="head"><p>feature 1</p></th>
+<th class="head"><p>feature 2</p></th>
+<th class="head"><p>feature 3</p></th>
+<th class="head"><p>score_pred</p></th>
+<th class="head"><p>open_gate_flag</p></th>
+<th class="head"><p>target_original</p></th>
+<th class="head"><p>target_short</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>427317</p></td>
+<td><p>2024-01-01</p></td>
+<td><p>value</p></td>
+<td><p>value</p></td>
+<td><p>value</p></td>
+<td><p>500</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>427318</p></td>
+<td><p>2024-01-02</p></td>
+<td><p>value</p></td>
+<td><p>value</p></td>
+<td><p>value</p></td>
+<td><p>003</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step-6-creating-report">
+<h2>Step 6 — creating report<a class="headerlink" href="#step-6-creating-report" title="Link to this heading"></a></h2>
+<p>Then you need to create a report.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Automated and most likely you don’t need to change anything here.</p>
+</div>
+<p>For this, functions from the <code class="docutils literal notranslate"><span class="pre">MonitoringReport.upload_report_to_conf.py</span></code> module are used.
+This module implements report creation using the template <code class="docutils literal notranslate"><span class="pre">Templates.pweave_report_template_{label}.py</span></code>.
+In the current situation, the template is standardized under label <em>og_short</em> for almost all models.
+That is, open gate data, a main target and a short target are used. If this is unnecessary for your model or, on the contrary, not enough,
+you can create a new template based on this and add a label to the configuration file discussed above in <strong>Step 1</strong>.</p>
+</section>
+<section id="step-7-airflow-dag">
+<h2>Step 7 — airflow dag<a class="headerlink" href="#step-7-airflow-dag" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Dag uses the functions above. So most likely you don’t need to change anything here.
+You just need to add your email to receive reports.</p>
+</div>
+<p>If you have made significant changes to the considered functions, added new arguments
+or model parameters in the configuration file, you may also need to update the dag accordingly.
+Our dags are located here and you can familiarize yourself with them:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_ESMM_models_monitoring.py">ESMM DAG</a> — for ES MoneyMan models.</p></li>
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_PLAZO_old_models_monitoring.py">ESPlazoOldPD DAG</a> — for ES Plazo old models.</p></li>
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_PLAZO_topup_models_monitoring.py">ESPlazoTopUp DAG</a> — for ES Plazo TopUp models.</p></li>
+<li><p><a class="reference external" href="https://github.com/gitmoneyman-es/analytics-sandbox/blob/main/AIRFLOW_DAGS/DS_MX_models_monitoring.py">MXMM DAG</a> — for MX MoneyMan models.</p></li>
+</ul>
+</section>
+<section id="step-8-email">
+<h2>Step 8 — email<a class="headerlink" href="#step-8-email" title="Link to this heading"></a></h2>
+<p>You can check your email and be happy about the report… or upset.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to DS model monitoring’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules.html" class="btn btn-neutral float-right" title="DS model analytics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

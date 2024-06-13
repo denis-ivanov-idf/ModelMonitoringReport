@@ -1,0 +1,12 @@
+MXMM package
+============
+.. note::
+   This module is used for MX MoneyMan models monitoring.
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   MXMM.Core

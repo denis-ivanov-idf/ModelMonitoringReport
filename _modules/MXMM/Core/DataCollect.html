@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MXMM.Core.DataCollect &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">How-to guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">MXMM.Core.DataCollect</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for MXMM.Core.DataCollect</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># function for loading data</span>
+<div class="viewcode-block" id="collect_data_scoring">
+<a class="viewcode-back" href="../../../MXMM.Core.html#MXMM.Core.DataCollect.collect_data_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_data_scoring</span><span class="p">(</span><span class="n">db_client</span><span class="p">,</span> <span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects data for scoring based on the specified identifier (score card).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        identifier (str): The name of the score card for which data is being collected.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A DataFrame containing the collected data, sorted by &#39;date_requested&#39; and with duplicates</span>
+<span class="sd">        on &#39;credit_id&#39; removed, keeping the first occurrence.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the model name is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;SCORE_NEW_ALL_CH_V3_&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        select credit_id,</span>
+<span class="s2">            date_requested,</span>
+<span class="s2">            1 - argMax(rec.score, rec.value_date) / 1000        as score_pred,</span>
+<span class="s2">            argMax(rec.log, rec.value_date)                     as log</span>
+<span class="s2">        from mx_debezium.cp_score_new_all_ch_v_3 rec</span>
+<span class="s2">        left join mx_report.analytic_book c on rec.credit_request_id = c.credit_id</span>
+<span class="s2">        where credit_number = 1</span>
+<span class="s2">        and status in (&#39;COMPLETED&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;)</span>
+<span class="s2">        and toDate(c.date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">        group by credit_id, date_requested</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;SCORE_REC_3_4_LTV_&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        select credit_id,</span>
+<span class="s2">            date_requested,</span>
+<span class="s2">            1 - argMax(rec.score, rec.value_date) / 1000       as score_pred,</span>
+<span class="s2">            argMax(rec.log, rec.value_date)                    as log</span>
+<span class="s2">        from mx_debezium.cp_score_rec_3_4_ltv rec</span>
+<span class="s2">        left join mx_report.analytic_book c on rec.credit_request_id = c.credit_id</span>
+<span class="s2">        where credit_number &gt;= 3 and credit_number &lt;= 4  and status in (&#39;ACTIVE&#39;, &#39;COMPLETED&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;)</span>
+<span class="s2">        and toDate(c.date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">        group by credit_id, date_requested</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;SCORE_REC_4_&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        select credit_id,</span>
+<span class="s2">            date_requested,</span>
+<span class="s2">            1 - argMax(rec.score, rec.value_date) / 1000       as score_pred,</span>
+<span class="s2">            argMax(rec.log, rec.value_date)          as log</span>
+<span class="s2">        from mx_debezium.cp_score_rec_4 rec</span>
+<span class="s2">        left join mx_report.analytic_book c on rec.credit_request_id = c.credit_id</span>
+<span class="s2">        where credit_number = 4  and status in (&#39;ACTIVE&#39;, &#39;COMPLETED&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;)</span>
+<span class="s2">        and toDate(c.date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">        group by credit_id, date_requested</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;SCORE_REC_5_9_PA_LTV_&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        select</span>
+<span class="s2">            c.credit_id                        as credit_id,</span>
+<span class="s2">            toDate(c.date_requested)           as date_requested,</span>
+<span class="s2">            1 - argMax(rec.score, rec.value_date) / 1000  as score_pred,</span>
+<span class="s2">            argMax(rec.log, rec.value_date)               as log</span>
+<span class="s2">        from mx_report.analytic_book c</span>
+<span class="s2">                left join product_analytics.credit_mart cm on c.credit_id = cm.id</span>
+<span class="s2">                left join mx_debezium.cp_score_rec_5_9_pa_ltv_debezium rec on cm.loan_before_id = rec.credit_request_id</span>
+<span class="s2">        where c.credit_number &gt;= 5</span>
+<span class="s2">        and value_date &gt;= cm.loan_before_date_repaid</span>
+<span class="s2">        and value_date &lt; c.date_requested</span>
+<span class="s2">        and c.status_causes like &#39;%PA_flow%&#39;</span>
+<span class="s2">        and toDate(c.date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">        and c.status in (&#39;ACTIVE&#39;, &#39;COMPLETED&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;)</span>
+<span class="s2">        group by credit_id, c.date_requested</span>
+<span class="s2">        order by c.date_requested asc</span>
+<span class="s2">            settings join_use_nulls = 1</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;SCORE_REC_5_9_NOT_PA_LTV_&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        select</span>
+<span class="s2">            c.credit_id                        as credit_id,</span>
+<span class="s2">            toDate(c.date_requested)           as date_requested,</span>
+<span class="s2">            1 - argMax(rec.score, rec.value_date) / 1000          as score_pred,</span>
+<span class="s2">            argMax(rec.log, rec.value_date)                       as log</span>
+<span class="s2">            from mx_report.analytic_book c</span>
+<span class="s2">                left join mx_debezium.cp_score_rec_5_9_not_pa_ltv rec on c.credit_id = rec.credit_request_id</span>
+<span class="s2">        where c.credit_number &gt;= 5 and c.credit_number &lt;= 9</span>
+<span class="s2">        and value_date &lt; date_received</span>
+<span class="s2">        and status_causes not like &#39;%PA_flow%&#39;</span>
+<span class="s2">        and toDate(c.date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">        and status in (&#39;ACTIVE&#39;, &#39;COMPLETED&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;)</span>
+<span class="s2">        group by credit_id, date_requested</span>
+<span class="s2">        order by date_requested</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;SCORE_v5_REC_2_&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        select credit_id,</span>
+<span class="s2">            date_requested,</span>
+<span class="s2">            1 - argMax(rec.score, rec.value_date) / 1000    as score_pred,</span>
+<span class="s2">            argMax(rec.log, rec.value_date)                 as log</span>
+<span class="s2">        from mx_debezium.cp_score_v5_rec_2 rec</span>
+<span class="s2">        left join mx_report.analytic_book c on rec.credit_request_id = c.credit_id</span>
+<span class="s2">        where credit_number = 2</span>
+<span class="s2">        and status in (&#39;ACTIVE&#39;, &#39;COMPLETED&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;)</span>
+<span class="s2">        and toDate(c.date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">        group by credit_id, date_requested</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">identifier</span> <span class="o">==</span> <span class="s2">&quot;boosting_3rd&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                with boosting_3rd_data as (select c.id                                                                               as credit_id,</span>
+<span class="s2">                                                ab.sent_amount,</span>
+<span class="s2">                                                c.borrower_id                                                                      as borrower_id,</span>
+<span class="s2">                                                toDate(c.date_requested)                                                           as disbursement_date,</span>
+<span class="s2">                                                crf.req_amount                                                                     as requested_amount,</span>
+<span class="s2">                                                arrayCount((i, cn)-&gt;assumeNotNull(i &lt; c.id and</span>
+<span class="s2">                                                                                    cn = c.credit_number), cb.ids,</span>
+<span class="s2">                                                            cb.creditNumbers)                                                       as apps_cnt_internally,</span>
+<span class="s2">                                                crf.req_credit_count_days                                                          as requested_tenor,</span>
+<span class="s2">                                                arrayReduce(&#39;max&#39;, arrayFilter((i, s)-&gt;(i &lt; credit_id and s = &#39;COMPLETED&#39;), cb.ids,</span>
+<span class="s2">                                                                                cb.statuses))                                       as prev_issued_credit_id,</span>
+<span class="s2">                                                arrayReduce(&#39;max&#39;, arrayFilter((i, s)-&gt;(i &lt; credit_id), cb.ids,</span>
+<span class="s2">                                                                                cb.statuses))                                       as prev_req_credit_id,</span>
+<span class="s2">                                                arrayFirst((a, i)-&gt;(i = prev_issued_credit_id), sentAmounts,</span>
+<span class="s2">                                                            ids)                                                                    as prev_issued_amount,</span>
+<span class="s2">                                                arrayFirst((a, i)-&gt;(i = prev_req_credit_id), sentAmounts,</span>
+<span class="s2">                                                            ids)                                                                    as prev_req_amount,</span>
+<span class="s2">                                                dateDiff(&#39;day&#39;, arrayFirst((dd, i)-&gt;(i = prev_issued_credit_id), dueDates, ids),</span>
+<span class="s2">                                                        arrayFirst((dr, i)-&gt;(i = prev_issued_credit_id), dateRepaids,</span>
+<span class="s2">                                                                    arrayFilter((i, s)-&gt;(s = &#39;COMPLETED&#39;), ids,</span>
+<span class="s2">                                                                                statuses)))                                        as previous_dpd,</span>
+<span class="s2">                                                arrayFirst((ed, i)-&gt;(i = prev_issued_credit_id), expiredDaysCounts,</span>
+<span class="s2">                                                            ids)                                                                    as prev_expired_days_count,</span>
+<span class="s2">                                                arrayMax(arrayFilter(</span>
+<span class="s2">                                                        (a, s, i)-&gt;(s in (&#39;COMPLETED&#39;, &#39;ACTIVE&#39;, &#39;EXPIRED&#39;, &#39;SOLD&#39;) and i &lt; credit_id),</span>
+<span class="s2">                                                        expiredDaysCounts, statuses,</span>
+<span class="s2">                                                        ids))                                                                      as max_expired_days_count_before,</span>
+<span class="s2">                                                arraySum(arrayFilter((a, s, i)-&gt;(s = &#39;COMPLETED&#39; and i &lt; credit_id), sentAmounts,</span>
+<span class="s2">                                                                    statuses,</span>
+<span class="s2">                                                                    ids))                                                         as total_amount_before,</span>
+<span class="s2">                                                arraySum(arrayFilter((a, i)-&gt;(i &lt; credit_id), paidAmounts,</span>
+<span class="s2">                                                                    paymCreditIds))                                               as total_paid_before,</span>
+<span class="s2">                                                arraySum(arrayFilter((a, s, i)-&gt;(i &lt; credit_id), sentAmounts, statuses,</span>
+<span class="s2">                                                                    ids))                                                         as total_requested_before,</span>
+<span class="s2">                                                arraySort(arrayFilter((dr, i)-&gt;(i &lt; credit_id), dateRepaids,</span>
+<span class="s2">                                                                        arrayFilter((i, s)-&gt;(s = &#39;COMPLETED&#39;), ids,</span>
+<span class="s2">                                                                                    statuses)))                                      as dateRepaidsBefore,</span>
+<span class="s2">                                                arraySort(arrayPushBack(</span>
+<span class="s2">                                                        arrayFilter((rd, i, s, cn)-&gt;(i &lt; credit_id and s = &#39;COMPLETED&#39; and cn != 1),</span>
+<span class="s2">                                                                    requestedDates, ids, statuses, creditNumbers),</span>
+<span class="s2">                                                        disbursement_date))                                                        as dateIssuedBefore,</span>
+<span class="s2">                                                arrayMap((dr, rd)-&gt;(dateDiff(&#39;day&#39;, dr, rd)), dateRepaidsBefore,</span>
+<span class="s2">                                                        dateIssuedBefore)                                                         as days_without_credit,</span>
+<span class="s2">                                                arrayReduce(&#39;sum&#39;, days_without_credit)                                            as sum_of_days_between_closed_and_issued,</span>
+<span class="s2">                                                arrayReduce(&#39;avg&#39;, days_without_credit)                                            as avg_of_days_between_closed_and_issued,</span>
+<span class="s2">                                                arraySum(arrayFilter((int, pd)-&gt;assumeNotNull(pd &lt; disbursement_date), percentPaids,</span>
+<span class="s2">                                                                    allPaymentDates))                                             as sum_commissions_paid_before,</span>
+<span class="s2">                                                arraySum(arrayFilter(</span>
+<span class="s2">                                                        (roll, g, pd)-&gt;assumeNotNull(pd &lt; disbursement_date and g = &#39;ROLLOVER&#39;),</span>
+<span class="s2">                                                        paidAmounts,</span>
+<span class="s2">                                                        paymentGoals,</span>
+<span class="s2">                                                        allPaymentDates))                                                          as sum_prolongations_paid_before,</span>
+<span class="s2">                                                total_paid_before - total_amount_before                                            as total_overpaid_before,</span>
+<span class="s2">                                                requested_amount / total_amount_before                                             as requested_amount_to_total_given_before,</span>
+<span class="s2">                                                requested_amount / (total_requested_before + requested_amount)                     as request_amount_to_total_request,</span>
+<span class="s2">                                                (total_requested_before + requested_amount) / total_amount_before                  as total_request_to_total_given_amount,</span>
+<span class="s2">                                                c.amount_to_pay                                                                    as requested_amount_to_pay,</span>
+<span class="s2">                                                v5_avg_current_overdue_amnt_of_sofom_acc                                           as cdc_old_v5_avg_current_overdue_amnt_of_sofom_acc,</span>
+<span class="s2">                                                v5_total_num_of_current_overdue_amnt_all_acc                                       as cdc_old_v5_total_num_of_current_overdue_amnt_all_acc,</span>
+<span class="s2">                                                v5_total_num_of_current_overdue_all_acc                                            as cdc_old_v5_total_num_of_current_overdue_all_acc,</span>
+<span class="s2">                                                v5_max_current_payment_of_all_acc_l12m                                             as cdc_old_v5_max_current_payment_of_all_acc_l12m,</span>
+<span class="s2">                                                v5_max_num_of_overdue_pay_of_sofom_acc_l6m                                         as cdc_old_v5_max_num_of_overdue_pay_of_sofom_acc_l6m,</span>
+<span class="s2">                                                v5_total_num_of_all_inq_l6m                                                        as cdc_old_v5_total_num_of_all_inq_l6m,</span>
+<span class="s2">                                                v5_total_num_of_current_overdue_sofom_acc                                          as cdc_old_v5_total_num_of_current_overdue_sofom_acc,</span>
+<span class="s2">                                                v5_total_avg_amnt_of_repaid_sofom_acc_l3m                                          as cdc_old_v5_total_avg_amnt_of_repaid_sofom_acc_l3m,</span>
+<span class="s2">                                                v5_min_current_overdue_amnt_of_sofom_acc                                           as cdc_old_v5_min_current_overdue_amnt_of_sofom_acc,</span>
+<span class="s2">                                                v5_total_amnt_of_current_overdue_amnt_all_acc_l12m                                 as cdc_old_v5_total_amnt_of_current_overdue_amnt_all_acc_l12m,</span>
+<span class="s2">                                                v7_avg_amnt_overdue_PP_l6m,</span>
+<span class="s2">                                                v7_avg_amnt_open_PP_l2m,</span>
+<span class="s2">                                                v7_total_duration_PN,</span>
+<span class="s2">                                                1 / (1 + exp(- catboostEvaluate(</span>
+<span class="s2">                                                        &#39;/etc/clickhouse-server/models/catboost_model_3rd_2024.cbm&#39;,</span>
+<span class="s2">                                                        coalesce(toInt32(requested_tenor), -10),</span>
+<span class="s2">                                                        coalesce(max_expired_days_count_before, -10),</span>
+<span class="s2">                                                        coalesce(toInt64(sum_of_days_between_closed_and_issued), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(avg_of_days_between_closed_and_issued), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(sum_commissions_paid_before), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(sum_prolongations_paid_before), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(requested_amount_to_total_given_before), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(total_request_to_total_given_amount), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(v7_avg_amnt_overdue_PP_l6m), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(v7_avg_amnt_open_PP_l2m), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(v7_total_duration_PN), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(requested_amount_to_pay), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(cdc_old_v5_avg_current_overdue_amnt_of_sofom_acc), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_total_num_of_current_overdue_amnt_all_acc), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_total_num_of_current_overdue_all_acc), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_max_current_payment_of_all_acc_l12m), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_max_num_of_overdue_pay_of_sofom_acc_l6m), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_total_num_of_all_inq_l6m), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_total_num_of_current_overdue_sofom_acc), -10),</span>
+<span class="s2">                                                        coalesce(toFloat64(cdc_old_v5_total_avg_amnt_of_repaid_sofom_acc_l3m), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_min_current_overdue_amnt_of_sofom_acc), -10),</span>
+<span class="s2">                                                        coalesce(toInt64(cdc_old_v5_total_amnt_of_current_overdue_amnt_all_acc_l12m),</span>
+<span class="s2">                                                                -10),</span>
+<span class="s2">                                                        coalesce(toInt64(apps_cnt_internally), -10)</span>
+<span class="s2">                                                                )</span>
+<span class="s2">                                                        ))                                                                        as catboost_score</span>
+<span class="s2">                                        from mx_debezium.credit c</span>
+<span class="s2">                                                    left join(select credit_id,</span>
+<span class="s2">                                                                    sent_amount,</span>
+<span class="s2">                                                                    issued</span>
+<span class="s2">                                                            from mx_report.analytic_book) ab on c.id = ab.credit_id</span>
+<span class="s2">                                                    left join (select credit_id,</span>
+<span class="s2">                                                                    groupArray(amount)       as amounts,</span>
+<span class="s2">                                                                    groupArray(payment_date) as paymentDates</span>
+<span class="s2">                                                            from mx_debezium.credit_payment</span>
+<span class="s2">                                                            where payment_source not in (&#39;BONUS&#39;, &#39;FORGIVENESS&#39;)</span>
+<span class="s2">                                                            group by credit_id) cp</span>
+<span class="s2">                                                            on c.id = cp.credit_id</span>
+<span class="s2">                                                    left join (select borrower_id,</span>
+<span class="s2">                                                                    groupArray(id)                                as ids,</span>
+<span class="s2">                                                                    groupArray(credit_number)                     as creditNumbers,</span>
+<span class="s2">                                                                    groupArray(status)                            as statuses,</span>
+<span class="s2">                                                                    groupArray(sent_amount)                       as sentAmounts,</span>
+<span class="s2">                                                                    groupArray(date_repaid)                       as dateRepaids,</span>
+<span class="s2">                                                                    groupArray(due_date)                          as dueDates,</span>
+<span class="s2">                                                                    groupArray(main_debt)                         as mainDebts,</span>
+<span class="s2">                                                                    groupArray(date_requested)                    as requestedDates,</span>
+<span class="s2">                                                                    groupArray(assumeNotNull(expired_days_count)) as expiredDaysCounts,</span>
+<span class="s2">                                                                    groupArray(assumeNotNull(payed_amount))       as payedAmounts</span>
+<span class="s2">                                                            from (select borrower_id,</span>
+<span class="s2">                                                                            id,</span>
+<span class="s2">                                                                            credit_number,</span>
+<span class="s2">                                                                            status,</span>
+<span class="s2">                                                                            sent_amount,</span>
+<span class="s2">                                                                            toDate(date_requested) as date_requested,</span>
+<span class="s2">                                                                            date_repaid,</span>
+<span class="s2">                                                                            due_date,</span>
+<span class="s2">                                                                            main_debt,</span>
+<span class="s2">                                                                            payed_amount,</span>
+<span class="s2">                                                                            expired_days_count</span>
+<span class="s2">                                                                    from mx_debezium.credit</span>
+<span class="s2">                                                                    where status != &#39;SOLD&#39;</span>
+<span class="s2">                                                                    and status != &#39;RETURNED&#39;</span>
+<span class="s2">                                                                    union all</span>
+<span class="s2">                                                                    select borrower_id,</span>
+<span class="s2">                                                                            id,</span>
+<span class="s2">                                                                            credit_number,</span>
+<span class="s2">                                                                            status,</span>
+<span class="s2">                                                                            sent_amount,</span>
+<span class="s2">                                                                            toDate(date_requested) as date_requested,</span>
+<span class="s2">                                                                            date_repaid,</span>
+<span class="s2">                                                                            due_date,</span>
+<span class="s2">                                                                            main_debt,</span>
+<span class="s2">                                                                            payed_amount,</span>
+<span class="s2">                                                                            expired_days_count</span>
+<span class="s2">                                                                    from mx_online_collect_debezium.credit)</span>
+<span class="s2">                                                            group by borrower_id) cb on c.borrower_id = cb.borrower_id</span>
+<span class="s2">                                                    left join (select borrower_id,</span>
+<span class="s2">                                                                    groupArray(id)        as rollIds,</span>
+<span class="s2">                                                                    groupArray(date_end)  as rollDateEnds,</span>
+<span class="s2">                                                                    groupArray(credit_id) as rollCreditIds</span>
+<span class="s2">                                                            from (</span>
+<span class="s2">                                                                        select cr.id         as id,</span>
+<span class="s2">                                                                            cr.date_end   as date_end,</span>
+<span class="s2">                                                                            cr.credit_id  as credit_id,</span>
+<span class="s2">                                                                            c.borrower_id as borrower_id</span>
+<span class="s2">                                                                        from mx_debezium.credit_rollover cr</span>
+<span class="s2">                                                                                left join mx_debezium.credit c on cr.credit_id = c.id</span>
+<span class="s2">                                                                        where (cr.status = &#39;ACTIVE&#39; or cr.status = &#39;COMPLETED&#39;)</span>
+<span class="s2">                                                                        and c.status != &#39;SOLD&#39;</span>
+<span class="s2">                                                                        union all</span>
+<span class="s2">                                                                        select cr.id, cr.date_end, cr.credit_id, c.borrower_id</span>
+<span class="s2">                                                                        from mx_online_collect_debezium.credit_rollover cr</span>
+<span class="s2">                                                                                left join mx_online_collect_debezium.credit c on cr.credit_id = c.id</span>
+<span class="s2">                                                                        where (cr.status = &#39;ACTIVE&#39; or cr.status = &#39;COMPLETED&#39;))</span>
+<span class="s2">                                                            group by borrower_id) cr on c.borrower_id = cr.borrower_id</span>
+<span class="s2">                                                    left join (select borrower_id,</span>
+<span class="s2">                                                                    groupArray(credit_id)                       as paymCreditIds,</span>
+<span class="s2">                                                                    groupArray(amount)                          as paidAmounts,</span>
+<span class="s2">                                                                    groupArray(payment_date)                    as allPaymentDates,</span>
+<span class="s2">                                                                    groupArray(goal)                            as paymentGoals,</span>
+<span class="s2">                                                                    groupArray(assumeNotNull(main_debt_to_pay)) as mainDebtPaids,</span>
+<span class="s2">                                                                    groupArray(assumeNotNull(penalty_paid))     as penaltyPaids,</span>
+<span class="s2">                                                                    groupArray(assumeNotNull(percent_paid))     as percentPaids</span>
+<span class="s2">                                                            from (select p.credit_id                                                               as credit_id,</span>
+<span class="s2">                                                                            c.borrower_id                                                             as borrower_id,</span>
+<span class="s2">                                                                            amount,</span>
+<span class="s2">                                                                            payment_date,</span>
+<span class="s2">                                                                            goal,</span>
+<span class="s2">                                                                            main_debt_to_pay,</span>
+<span class="s2">                                                                            p.penalty_to_pay + p.vat_penalty_to_pay + p.fee_to_pay + p.vat_fee_to_pay as penalty_paid,</span>
+<span class="s2">                                                                            p.percent_to_pay + p.vat_percent_to_pay                                   as percent_paid</span>
+<span class="s2">                                                                    from mx_online_collect_debezium.credit_payment p</span>
+<span class="s2">                                                                            left join mx_online_collect_debezium.credit c on p.credit_id = c.id</span>
+<span class="s2">                                                                            left join mx_debezium.credit_sold_data csd</span>
+<span class="s2">                                                                                        on p.credit_id = csd.credit_id</span>
+<span class="s2">                                                                    where payment_date &gt;= csd.date_sold</span>
+<span class="s2">                                                                    and lower(description) not like &#39;%bonus%&#39;</span>
+<span class="s2">                                                                    and payment_source not in (&#39;BONUS&#39;)</span>
+<span class="s2">                                                                    union all</span>
+<span class="s2">                                                                    select p.credit_id                                                               as credit_id,</span>
+<span class="s2">                                                                            c.borrower_id                                                             as borrower_id,</span>
+<span class="s2">                                                                            amount,</span>
+<span class="s2">                                                                            payment_date,</span>
+<span class="s2">                                                                            goal,</span>
+<span class="s2">                                                                            main_debt_to_pay,</span>
+<span class="s2">                                                                            p.penalty_to_pay + p.vat_penalty_to_pay + p.fee_to_pay + p.vat_fee_to_pay as penalty_paid,</span>
+<span class="s2">                                                                            p.percent_to_pay + p.vat_percent_to_pay                                   as percent_paid</span>
+<span class="s2">                                                                    from mx_debezium.credit_payment p</span>
+<span class="s2">                                                                            left join mx_debezium.credit c on p.credit_id = c.id</span>
+<span class="s2">                                                                    where payment_source not in (&#39;FORGIVENESS&#39;, &#39;BONUS&#39;))</span>
+<span class="s2">                                                            group by borrower_id) pb on c.borrower_id = pb.borrower_id</span>
+<span class="s2">                                                    left join (select credit_request_id,</span>
+<span class="s2">                                                                    argMax(marital_status, value_date)   as marital_status,</span>
+<span class="s2">                                                                    argMax(sex, value_date)              as sex,</span>
+<span class="s2">                                                                    argMax(city, value_date)             as city,</span>
+<span class="s2">                                                                    argMax(state, value_date)            as state,</span>
+<span class="s2">                                                                    argMax(housing_type, value_date)     as housing_type,</span>
+<span class="s2">                                                                    argMax(education, value_date)        as education,</span>
+<span class="s2">                                                                    argMax(income, value_date)           as income,</span>
+<span class="s2">                                                                    argMax(employment, value_date)       as employment,</span>
+<span class="s2">                                                                    argMax(company_name, value_date)     as company_name,</span>
+<span class="s2">                                                                    argMax(payments_amount, value_date)  as payments_amount,</span>
+<span class="s2">                                                                    argMax(salary_frequency, value_date) as salary_frequency,</span>
+<span class="s2">                                                                    argMax(age, value_date)              as age,</span>
+<span class="s2">                                                                    argMax(monthly_expenses, value_date) as monthly_expenses</span>
+<span class="s2">                                                            from mx_debezium.cp_borrower cpb</span>
+<span class="s2">                                                                        left join mx_debezium.credit c on cpb.credit_request_id = c.id</span>
+<span class="s2">                                                            where value_date &lt;= date_received</span>
+<span class="s2">                                                            group by credit_request_id) cpb on c.id = cpb.credit_request_id</span>
+<span class="s2">                                                    left join (select credit_id                        as crf_credit_id,</span>
+<span class="s2">                                                                    max(requested_amount)            as req_amount,</span>
+<span class="s2">                                                                    max(requested_amount_to_pay)     as req_amount_to_pay,</span>
+<span class="s2">                                                                    max(requested_credit_count_days) as req_credit_count_days,</span>
+<span class="s2">                                                                    max(requested_percent_per_day)   as req_percent_per_day,</span>
+<span class="s2">                                                                    max(iovation_id)                 as iovation_id</span>
+<span class="s2">                                                            from mx_debezium.credit_risk_filter</span>
+<span class="s2">                                                            group by credit_id) crf on c.id = crf.crf_credit_id</span>
+<span class="s2">                                                    left join (select credit_request_id,</span>
+<span class="s2">                                                                    min(date_response)                  as date_response,</span>
+<span class="s2">                                                                    argMin(summary_id, d.date_response) as summary_id</span>
+<span class="s2">                                                            from mx_debezium.bureau_dispatcher_data d</span>
+<span class="s2">                                                            where bureau = &#39;CDC&#39;</span>
+<span class="s2">                                                            group by credit_request_id) dd on c.id = dd.credit_request_id</span>
+<span class="s2">                                                    left join (select summary_id,</span>
+<span class="s2">                                                                    v5_avg_current_overdue_amnt_of_sofom_acc,</span>
+<span class="s2">                                                                    v5_total_avg_amnt_of_repaid_sofom_acc_l3m,</span>
+<span class="s2">                                                                    v5_min_current_overdue_amnt_of_sofom_acc,</span>
+<span class="s2">                                                                    v5_total_num_of_current_overdue_all_acc,</span>
+<span class="s2">                                                                    v5_max_num_of_overdue_pay_of_sofom_acc_l6m,</span>
+<span class="s2">                                                                    v5_total_num_of_all_inq_l6m,</span>
+<span class="s2">                                                                    v5_total_num_of_current_overdue_sofom_acc,</span>
+<span class="s2">                                                                    v5_max_current_payment_of_all_acc_l12m,</span>
+<span class="s2">                                                                    v5_total_amnt_of_current_overdue_amnt_all_acc_l12m,</span>
+<span class="s2">                                                                    v5_total_num_of_current_overdue_amnt_all_acc</span>
+<span class="s2">                                                            from mx_master.cdc_aggregates) cdc</span>
+<span class="s2">                                                            on dd.summary_id = toInt64(cdc.summary_id)</span>
+<span class="s2">                                                    left join (select summaryId,</span>
+<span class="s2">                                                                    arrayFilter((credit_amount, tipo, open_date) -&gt;</span>
+<span class="s2">                                                                                    if((dateDiff(&#39;DAY&#39;, open_date, uploadDate) &lt; 180)</span>
+<span class="s2">                                                                                            AND credit_amount &gt; 100</span>
+<span class="s2">                                                                                            AND</span>
+<span class="s2">                                                                                        arrayExists(</span>
+<span class="s2">                                                                                                s -&gt; assumeNotNull(position(tipo, s) &gt; 0),</span>
+<span class="s2">                                                                                                [&#39;PP&#39;]), 1, 0),</span>
+<span class="s2">                                                                                overdue_balances,</span>
+<span class="s2">                                                                                tipo_credito,</span>
+<span class="s2">                                                                                account_opening_dates)       as b_overdue_PP_6m,</span>
+<span class="s2">                                                                    arrayReduce(&#39;avg&#39;, b_overdue_PP_6m)      AS v7_avg_amnt_overdue_PP_l6m,</span>
+<span class="s2">                                                                    arrayFilter((credit_amount, tipo, open_date) -&gt;</span>
+<span class="s2">                                                                                    if((open_date IS NOT NULL) AND</span>
+<span class="s2">                                                                                        (dateDiff(&#39;DAY&#39;, open_date, uploadDate) &lt; 60) AND</span>
+<span class="s2">                                                                                        arrayExists(</span>
+<span class="s2">                                                                                                s -&gt; assumeNotNull(position(tipo, s) &gt; 0),</span>
+<span class="s2">                                                                                                [&#39;PP&#39;]), 1, 0),</span>
+<span class="s2">                                                                                credits_amount,</span>
+<span class="s2">                                                                                tipo_credito,</span>
+<span class="s2">                                                                                account_opening_dates)       as b_open_PP_2m,</span>
+<span class="s2">                                                                    arrayReduce(&#39;avg&#39;, b_open_PP_2m)         as v7_avg_amnt_open_PP_l2m,</span>
+<span class="s2">                                                                    arrayMap(</span>
+<span class="s2">                                                                            (open_date, close_date) -&gt; dateDiff(&#39;DAY&#39;, close_date, open_date),</span>
+<span class="s2">                                                                            arrayFilter((close_date, open_date, credit_type) -&gt;</span>
+<span class="s2">                                                                                            if((close_date IS NOT NULL) AND</span>
+<span class="s2">                                                                                                (close_date &gt; open_date) AND</span>
+<span class="s2">                                                                                                arrayExists(</span>
+<span class="s2">                                                                                                        s -&gt; assumeNotNull(position(credit_type, s) &gt; 0),</span>
+<span class="s2">                                                                                                        [&#39;PN&#39;]), 1, 0),</span>
+<span class="s2">                                                                                        account_closing_dates,</span>
+<span class="s2">                                                                                        account_opening_dates,</span>
+<span class="s2">                                                                                        tipo_credito),</span>
+<span class="s2">                                                                            arrayFilter((open_date, close_date, credit_type) -&gt;</span>
+<span class="s2">                                                                                            if((close_date IS NOT NULL) AND</span>
+<span class="s2">                                                                                                (close_date &gt; open_date) AND</span>
+<span class="s2">                                                                                                arrayExists(</span>
+<span class="s2">                                                                                                        s -&gt; assumeNotNull(position(credit_type, s) &gt; 0),</span>
+<span class="s2">                                                                                                        [&#39;PN&#39;]), 1, 0),</span>
+<span class="s2">                                                                                        account_opening_dates,</span>
+<span class="s2">                                                                                        account_closing_dates,</span>
+<span class="s2">                                                                                        tipo_credito))       AS v7_fact_durations_PN,</span>
+<span class="s2">                                                                    arrayReduce(&#39;sum&#39;, v7_fact_durations_PN) as v7_total_duration_PN</span>
+<span class="s2">                                                            from mx_master.cdc_parsed_response) pr</span>
+<span class="s2">                                                            on dd.summary_id = toInt64(pr.summaryId)</span>
+<span class="s2">                                        where credit_number = 3</span>
+<span class="s2">                                            and length(dateIssuedBefore) = length(dateRepaidsBefore)</span>
+<span class="s2">                                            and length(cb.ids) = length(cb.statuses)</span>
+<span class="s2">                                            and prev_issued_credit_id != 0</span>
+<span class="s2">                                            and toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">                                            and issued = 1</span>
+<span class="s2">                                            and ((dd.date_response &lt;= date_requested + interval 1 day) or dd.date_response is null)</span>
+<span class="s2">                                        order by credit_id</span>
+<span class="s2">                                            settings</span>
+<span class="s2">                                            join_use_nulls = 1)</span>
+<span class="s2">                select credit_id,</span>
+<span class="s2">                    disbursement_date as date_requested,</span>
+<span class="s2">                    requested_tenor,</span>
+<span class="s2">                    max_expired_days_count_before,</span>
+<span class="s2">                    sum_of_days_between_closed_and_issued,</span>
+<span class="s2">                    avg_of_days_between_closed_and_issued,</span>
+<span class="s2">                    sum_commissions_paid_before,</span>
+<span class="s2">                    sum_prolongations_paid_before,</span>
+<span class="s2">                    requested_amount_to_total_given_before,</span>
+<span class="s2">                    total_request_to_total_given_amount,</span>
+<span class="s2">                    v7_avg_amnt_overdue_PP_l6m,</span>
+<span class="s2">                    v7_avg_amnt_open_PP_l2m,</span>
+<span class="s2">                    v7_total_duration_PN,</span>
+<span class="s2">                    requested_amount_to_pay,</span>
+<span class="s2">                    cdc_old_v5_avg_current_overdue_amnt_of_sofom_acc,</span>
+<span class="s2">                    cdc_old_v5_total_num_of_current_overdue_amnt_all_acc,</span>
+<span class="s2">                    cdc_old_v5_total_num_of_current_overdue_all_acc,</span>
+<span class="s2">                    cdc_old_v5_max_current_payment_of_all_acc_l12m,</span>
+<span class="s2">                    cdc_old_v5_max_num_of_overdue_pay_of_sofom_acc_l6m,</span>
+<span class="s2">                    cdc_old_v5_total_num_of_all_inq_l6m,</span>
+<span class="s2">                    cdc_old_v5_total_num_of_current_overdue_sofom_acc,</span>
+<span class="s2">                    cdc_old_v5_total_avg_amnt_of_repaid_sofom_acc_l3m,</span>
+<span class="s2">                    cdc_old_v5_min_current_overdue_amnt_of_sofom_acc,</span>
+<span class="s2">                    cdc_old_v5_total_amnt_of_current_overdue_amnt_all_acc_l12m,</span>
+<span class="s2">                    apps_cnt_internally,</span>
+<span class="s2">                    catboost_score    as score_pred</span>
+<span class="s2">                from boosting_3rd_data</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;date_requested&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;credit_id&quot;</span><span class="p">],</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="collect_target_scoring">
+<a class="viewcode-back" href="../../../MXMM.Core.html#MXMM.Core.DataCollect.collect_target_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_target_scoring</span><span class="p">(</span><span class="n">db_client</span><span class="p">,</span> <span class="n">dpd</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects target from the database based on the days past due (dpd).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        dpd (int): The number of days past due used to determine the target variable.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A DataFrame containing the target.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the model name is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT credit_id,</span>
+<span class="s2">                if(like(status_causes, &#39;%OGV_002%&#39;), 1, 0) as open_gate_flag,</span>
+<span class="s2">                if(expired_days_count &gt;= </span><span class="si">{</span><span class="n">dpd</span><span class="si">}</span><span class="s2">, 1, 0) as target</span>
+<span class="s2">            FROM mx_report.analytic_book</span>
+<span class="s2">            WHERE toDate(date_requested) &gt;= toStartOfMonth(today() - interval 1 year)</span>
+<span class="s2">            and due_date + interval </span><span class="si">{</span><span class="n">dpd</span><span class="si">}</span><span class="s2"> day &lt; today()</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

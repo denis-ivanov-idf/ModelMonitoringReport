@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESPlazoTopUp.Core.DataCollect &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">How-to guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ESPlazoTopUp.Core.DataCollect</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ESPlazoTopUp.Core.DataCollect</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># function for loading data new topup model</span>
+<div class="viewcode-block" id="collect_data_scoring">
+<a class="viewcode-back" href="../../../ESPlazoTopUp.Core.html#ESPlazoTopUp.Core.DataCollect.collect_data_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_data_scoring</span><span class="p">(</span>
+    <span class="n">db_client</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">time_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+    <span class="n">days_in_expired</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">day_of_month</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span>
+    <span class="n">days_in_expired_threshold</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">utilization_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects and processes data for scoring based on the specified model name and various conditions and parameters.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        time_window (int): Time window in months for filtering data. Default is 6.</span>
+<span class="sd">        days_in_expired (int): Number of days in expired status to consider for target calculation. Default is 30.</span>
+<span class="sd">        day_of_month (int): Day of the month to filter the calculation date. Default is 18.</span>
+<span class="sd">        days_in_expired_threshold (int): Threshold for the number of expired days to filter data. Default is 0.</span>
+<span class="sd">        utilization_threshold (float): Utilization threshold for filtering data. Default is 0.1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Processed data frame containing scoring data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;es_plazo_curr_client_pd_04_2024&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            with base_table as (select concat(cast(base.borrower_id AS String), &#39;_&#39;,</span>
+<span class="s2">                                        cast(base.current_calculation_date AS String)) AS borrower_id_date,</span>
+<span class="s2">                                    base.borrower_id                                      as borrower_id,</span>
+<span class="s2">                                    base.date_upper_bound                                 as date_upper_bound,</span>
+<span class="s2">                                    base.current_calculation_date                         as current_calculation_date,</span>
+<span class="s2">                                    rh.og_approve_flg                                     as open_gate_flag,</span>
+<span class="s2">                                    mcc.mm_borrower_id                                    as mm_borrower_id,</span>
+<span class="s2">                                    base.target                                           as target</span>
+<span class="s2">                                from (</span>
+<span class="s2">                                    select borrower_id,</span>
+<span class="s2">                                                date_created as date_upper_bound,</span>
+<span class="s2">                                                current_calculation_date,</span>
+<span class="s2">                                                target</span>
+<span class="s2">                                    from (</span>
+<span class="s2">                                                select b.borrower_id                 as borrower_id,</span>
+<span class="s2">                                                        date_created,</span>
+<span class="s2">                                                        current_calculation_date,</span>
+<span class="s2">                                                        if(startsWith(change_description, &#39;c&#39;) and</span>
+<span class="s2">                                                        current_calculation_date &gt; change_date + interval 3 month, 1,</span>
+<span class="s2">                                                        0)                         as is_prev_topup,</span>
+<span class="s2">                                                        arrayReduce(&#39;max&#39;, arrayFilter(</span>
+<span class="s2">                                                            (sdc, s, cd)-&gt; (s = &#39;EXPIRED&#39; and</span>
+<span class="s2">                                                                            cd &lt;= current_calculation_date and</span>
+<span class="s2">                                                                            cd &gt;= current_calculation_date - interval 90 day),</span>
+<span class="s2">                                                            status_days_counts, statuses,</span>
+<span class="s2">                                                            calculation_dates))   as expired_days_count,</span>
+<span class="s2">                                                        arrayReduce(&#39;max&#39;, arrayFilter(</span>
+<span class="s2">                                                            (u, cd) -&gt; (cd &lt;= current_calculation_date and</span>
+<span class="s2">                                                                            cd &gt;= current_calculation_date - interval 30 day),</span>
+<span class="s2">                                                            utilizations,</span>
+<span class="s2">                                                            calculation_dates))   as utilization,</span>
+<span class="s2">                                                        arrayReduce(&#39;max&#39;, arrayFilter(</span>
+<span class="s2">                                                            (sdc, s, cd)-&gt; (s = &#39;EXPIRED&#39; and</span>
+<span class="s2">                                                                            cd &gt;= current_calculation_date and</span>
+<span class="s2">                                                                            cd &lt;=</span>
+<span class="s2">                                                                            current_calculation_date + interval </span><span class="si">{</span><span class="n">time_window</span><span class="si">}</span><span class="s2"> month),</span>
+<span class="s2">                                                            status_days_counts, statuses,</span>
+<span class="s2">                                                            calculation_dates))   as target_counts,</span>
+<span class="s2">                                                        if(target_counts &gt;= </span><span class="si">{</span><span class="n">days_in_expired</span><span class="si">}</span><span class="s2">, 1, 0) as target</span>
+<span class="s2">                                                from (select borrower_id,</span>
+<span class="s2">                                                            date_created,</span>
+<span class="s2">                                                            calculation_date as current_calculation_date,</span>
+<span class="s2">                                                            status</span>
+<span class="s2">                                                    from escc_report.credit_calculations</span>
+<span class="s2">                                                    where toDayOfMonth(calculation_date) = </span><span class="si">{</span><span class="n">day_of_month</span><span class="si">}</span>
+<span class="s2">                                                        and calculation_date &gt;= date_created + interval 3 month</span>
+<span class="s2">                                                        and calculation_date &lt;= current_calculation_date + interval </span><span class="si">{</span><span class="n">time_window</span><span class="si">}</span><span class="s2"> month</span>
+<span class="s2">                                                        and today() &gt; current_calculation_date + interval </span><span class="si">{</span><span class="n">time_window</span><span class="si">}</span><span class="s2"> month</span>
+<span class="s2">                                                        and date_created &gt;= &#39;2022-07-01&#39;</span>
+<span class="s2">                                                        and status = &#39;ACTIVE&#39;) b</span>
+<span class="s2">                                                        left join (</span>
+<span class="s2">                                                    select borrower_id,</span>
+<span class="s2">                                                        groupArray(calculation_date)  as calculation_dates,</span>
+<span class="s2">                                                        groupArray(status)            as statuses,</span>
+<span class="s2">                                                        groupArray(status_days_count) as status_days_counts,</span>
+<span class="s2">                                                        groupArray(usage)             as utilizations</span>
+<span class="s2">                                                    from escc_report.credit_calculations</span>
+<span class="s2">                                                    where date_created &gt;= &#39;2022-07-01&#39;</span>
+<span class="s2">                                                    and calculation_date &gt;= date_created + interval 3 month</span>
+<span class="s2">                                                    group by borrower_id) cc_group on b.borrower_id = cc_group.borrower_id</span>
+<span class="s2">                                                    asof</span>
+<span class="s2">                                                        left join (</span>
+<span class="s2">                                                    select borrower_id,</span>
+<span class="s2">                                                        change_date,</span>
+<span class="s2">                                                        change_description</span>
+<span class="s2">                                                    from escc_debezium.client_limit_history</span>
+<span class="s2">                                                    where change_description like &#39;change%&#39;</span>
+<span class="s2">                                                    and create_date &gt;= &#39;2022-07-01&#39;</span>
+<span class="s2">                                                    ) clh</span>
+<span class="s2">                                                                    on b.borrower_id = clh.borrower_id and current_calculation_date &gt;= change_date)</span>
+<span class="s2">                                    where is_prev_topup != 1</span>
+<span class="s2">                                        and expired_days_count = </span><span class="si">{</span><span class="n">days_in_expired_threshold</span><span class="si">}</span>
+<span class="s2">                                        and utilization &gt;= </span><span class="si">{</span><span class="n">utilization_threshold</span><span class="si">}</span>
+<span class="s2">                                    ) base</span>
+<span class="s2">                                    asof</span>
+<span class="s2">                                    left join escc_report.mm_card_clients mcc</span>
+<span class="s2">                                                on base.borrower_id = mcc.crdes_borrower_id and</span>
+<span class="s2">                                                    base.date_upper_bound &gt; mcc.mm_ua_creation_date</span>
+<span class="s2">                                    left join product_analytics.risk_holybook as rh</span>
+<span class="s2">                                    on rh.borrower_id_crdes = base.borrower_id</span>
+<span class="s2">                                        and toDate(rh.date_issuance) &gt; &#39;2022-07-01&#39;)</span>
+<span class="s2">            select borrower_id</span>
+<span class="s2">                , base_table.current_calculation_date              as current_calculation_date</span>
+<span class="s2">                , open_gate_flag</span>
+<span class="s2">                , perc_more99_utiliz_l30d</span>
+<span class="s2">                , perc_more95_utiliz_l30d</span>
+<span class="s2">                , cnt_days_util90_l30d</span>
+<span class="s2">                , avg_transactions_c_l30d_success</span>
+<span class="s2">                , dd_failed_amount_max_l90d</span>
+<span class="s2">                , dd_count_l90d</span>
+<span class="s2">                , if(api_ping_cnt_l90d is Null, -1, api_ping_cnt_l90d) as api_ping_cnt_l90d</span>
+<span class="s2">                , target</span>
+<span class="s2">            from base_table</span>
+<span class="s2">                    left join (</span>
+<span class="s2">                select borrower_id_date</span>
+<span class="s2">                    , arrayFilter((util, d) -&gt; (d &gt;= current_calculation_date - interval 30 day</span>
+<span class="s2">                    and d &lt; current_calculation_date),</span>
+<span class="s2">                                utilizations,</span>
+<span class="s2">                                calculation_dates)                        as arr_utilization_l30d</span>
+<span class="s2">                    , arrayCount(x -&gt; x &gt;= 0.99, arr_utilization_l30d) / 30 as perc_more99_utiliz_l30d</span>
+<span class="s2">                    , arrayCount(x -&gt; x &gt;= 0.95, arr_utilization_l30d) / 30 as perc_more95_utiliz_l30d</span>
+<span class="s2">                    , arrayCount((d, util) -&gt; (d &gt;= current_calculation_date - interval 30 day</span>
+<span class="s2">                    and d &lt; current_calculation_date and util &gt;= 0.9),</span>
+<span class="s2">                                calculation_dates,</span>
+<span class="s2">                                utilizations)                              as cnt_days_util90_l30d</span>
+<span class="s2">                from (</span>
+<span class="s2">                        select borrower_id_date</span>
+<span class="s2">                            , current_calculation_date</span>
+<span class="s2">                            , groupArray(calculation_date)             as calculation_dates</span>
+<span class="s2">                            , groupArray(ifNull(main_debt, 0) / limit) as utilizations</span>
+<span class="s2">                        from base_table t</span>
+<span class="s2">                                left join (</span>
+<span class="s2">                            select borrower_id</span>
+<span class="s2">                                , calculation_date</span>
+<span class="s2">                                , main_debt</span>
+<span class="s2">                                , limit</span>
+<span class="s2">                            from escc_report.credit_calculations</span>
+<span class="s2">                            where calculation_date &gt; &#39;2022-07-01&#39;) cc</span>
+<span class="s2">                                            on t.borrower_id = cc.borrower_id</span>
+<span class="s2">                        group by borrower_id_date, current_calculation_date)) cc_stat</span>
+<span class="s2">                            on base_table.borrower_id_date = cc_stat.borrower_id_date</span>
+<span class="s2">                    left join (</span>
+<span class="s2">                select borrower_id_date</span>
+<span class="s2">                    , arraySum(arrayFilter(</span>
+<span class="s2">                        (am, sign, d, s) -&gt; (d &lt; current_calculation_date and d &gt;= current_calculation_date - interval 30 day</span>
+<span class="s2">                            and sign = &#39;CREDIT&#39; and s = 1),</span>
+<span class="s2">                        amounts,</span>
+<span class="s2">                        transaction_signs,</span>
+<span class="s2">                        transaction_dates,</span>
+<span class="s2">                        is_successful_transaction))          as sum_transactions_c_l30d_success</span>
+<span class="s2">                    , arrayCount(</span>
+<span class="s2">                        (d, sign, s) -&gt; (d &lt; current_calculation_date and d &gt;= current_calculation_date - interval 30 day and</span>
+<span class="s2">                                        sign = &#39;CREDIT&#39; and s = 1),</span>
+<span class="s2">                        transaction_dates,</span>
+<span class="s2">                        transaction_signs,</span>
+<span class="s2">                        is_successful_transaction)           as count_transactions_c_l30d_success</span>
+<span class="s2">                    , if(isNaN(sum_transactions_c_l30d_success / count_transactions_c_l30d_success), 0,</span>
+<span class="s2">                        sum_transactions_c_l30d_success /</span>
+<span class="s2">                        count_transactions_c_l30d_success) as avg_transactions_c_l30d_success</span>
+<span class="s2">                from (</span>
+<span class="s2">                        select borrower_id_date</span>
+<span class="s2">                            , date_upper_bound</span>
+<span class="s2">                            , current_calculation_date</span>
+<span class="s2">                            , groupArray(if(status in (&#39;PROCESSED&#39;, &#39;WITHHELD_PROCESSED&#39;), 1, 0)) as is_successful_transaction</span>
+<span class="s2">                            , groupArray(transaction_date)                                        as transaction_dates</span>
+<span class="s2">                            , groupArray(transaction_sign)                                        as transaction_signs</span>
+<span class="s2">                            , groupArray(amount)                                                  as amounts</span>
+<span class="s2">                        from base_table t</span>
+<span class="s2">                                left join (</span>
+<span class="s2">                            select borrower_id</span>
+<span class="s2">                                , status</span>
+<span class="s2">                                , transaction_date</span>
+<span class="s2">                                , transaction_sign</span>
+<span class="s2">                                , amount</span>
+<span class="s2">                            from escc_report.transaction_flags</span>
+<span class="s2">                            where transaction_date &gt; &#39;2022-07-01&#39;</span>
+<span class="s2">                            and account_type in (&#39;CREDIT&#39;, &#39;DEBIT&#39;)</span>
+<span class="s2">                            and operation_type_new not in</span>
+<span class="s2">                                (&#39;BONUS TO COMPLETE CREDIT&#39;, &#39;PURCHASE_CANCELLATION&#39;, &#39;WITHDRAWAL_CANCELLATION&#39;)) tf</span>
+<span class="s2">                                            on t.borrower_id = tf.borrower_id</span>
+<span class="s2">                        group by borrower_id_date, current_calculation_date, date_upper_bound)) tf_stat</span>
+<span class="s2">                            on base_table.borrower_id_date = tf_stat.borrower_id_date</span>
+<span class="s2">                    left join (</span>
+<span class="s2">                select borrower_id_date</span>
+<span class="s2">                    , arrayReduce(&#39;max&#39;, arrayFilter(</span>
+<span class="s2">                        (am, d, s) -&gt; d &lt; current_calculation_date and d &gt;= current_calculation_date - interval 90 day</span>
+<span class="s2">                            and s in (&#39;FAILED&#39;, &#39;INVALID&#39;),</span>
+<span class="s2">                        amounts_to_charge, created_dates, statuses)) as dd_failed_amount_max_l90d</span>
+<span class="s2">                    , arrayCount((d) -&gt; d &lt; current_calculation_date and d &gt;= current_calculation_date - interval 90 day,</span>
+<span class="s2">                                created_dates)                     as dd_count_l90d</span>
+<span class="s2">                from (</span>
+<span class="s2">                        select borrower_id_date</span>
+<span class="s2">                            , current_calculation_date</span>
+<span class="s2">                            , groupArray(created_date)                as created_dates</span>
+<span class="s2">                            , groupArray(status)                      as statuses</span>
+<span class="s2">                            , groupArray(toFloat64(amount_to_charge)) as amounts_to_charge</span>
+<span class="s2">                        from base_table t</span>
+<span class="s2">                                left join (</span>
+<span class="s2">                            select *</span>
+<span class="s2">                            from escc_direct_debit_debezium.dd_charge_attempts</span>
+<span class="s2">                            where created_date &gt; &#39;2022-07-01&#39;</span>
+<span class="s2">                            and payment_source_uuid is not null) dd on t.borrower_id = dd.borrower_id</span>
+<span class="s2">                        group by borrower_id_date, current_calculation_date)) dd</span>
+<span class="s2">                            on base_table.borrower_id_date = dd.borrower_id_date</span>
+<span class="s2">                    left join (</span>
+<span class="s2">                select borrower_id_date,</span>
+<span class="s2">                    arrayCount((d) -&gt; (d &gt;= current_calculation_date - interval 90 day),</span>
+<span class="s2">                                api_ping_dates_array)                   as api_ping_cnt_l90d</span>
+<span class="s2">                from (select base.borrower_id_date                        as borrower_id_date</span>
+<span class="s2">                        , base.current_calculation_date                as current_calculation_date</span>
+<span class="s2">                        , groupArray(pi.creation_date)                 as api_ping_dates_array</span>
+<span class="s2">                    from base_table base</span>
+<span class="s2">                            left join es_debezium.borrower as b</span>
+<span class="s2">                                        on base.mm_borrower_id = b.id</span>
+<span class="s2">                            left join es_debezium.personal_data as pd</span>
+<span class="s2">                                        on b.personal_data_id = pd.id</span>
+<span class="s2">                        asof</span>
+<span class="s2">                            left join (</span>
+<span class="s2">                        select id,</span>
+<span class="s2">                                creation_date                               as plz_ua_creation_date,</span>
+<span class="s2">                                passport_identification_number_sip_hash_128 as plz_pass_hash</span>
+<span class="s2">                        from escc_debezium.borrower br</span>
+<span class="s2">                                left join escc_debezium.personal_data pd on pd.id = br.personal_data_id) plz_br</span>
+<span class="s2">                                        on base.borrower_id = plz_br.id and</span>
+<span class="s2">                                            base.current_calculation_date &gt; plz_br.plz_ua_creation_date</span>
+<span class="s2">                            left join es_debezium.partner_integration as pi</span>
+<span class="s2">                                        on (pi.passport_identification_number = pd.passport_identification_number or</span>
+<span class="s2">                                            pi.passport_identification_number_sip_hash_128 = plz_br.plz_pass_hash)</span>
+<span class="s2">                    where pi.creation_date &lt; base.current_calculation_date</span>
+<span class="s2">                    group by base.borrower_id_date, base.mm_borrower_id, base.current_calculation_date</span>
+<span class="s2">                        )) api on base_table.borrower_id_date = api.borrower_id_date</span>
+<span class="s2">            settings join_use_nulls = 1</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;sm_Plz_TopUp&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                WITH sc as (select cc_filt.borrower_id                                                   as borrower_id</span>
+<span class="s2">                                , rh.borrower_id_mm                                                      as mm_borrower_id</span>
+<span class="s2">                                , rh.date_of_application                                                 as date_application</span>
+<span class="s2">                                , rh.date_issuance                                                       as date_issuance</span>
+<span class="s2">                                , rh.og_approve_flg                                                      as open_gate_flag</span>
+<span class="s2">                                , cc_filt.calculation_date                                               as calculation_date</span>
+<span class="s2">                                , cc_filt.calculation_date                                               as expire_date</span>
+<span class="s2">                                , cc_filt.credit_product_id                                              as credit_product_id</span>
+<span class="s2">                                , utilized_limit</span>
+<span class="s2">                                , if(target_15dpd &gt; 0, 1, 0)                                             as target_15dpd</span>
+<span class="s2">                                , dateDiff(&#39;month&#39;, rh.date_issuance, cc_filt.calculation_date)          as mob</span>
+<span class="s2">                                , arrayFilter((util, d) -&gt; (d &gt;= expire_date - interval 60 day</span>
+<span class="s2">                        and d &lt; expire_date),</span>
+<span class="s2">                                            utilizations,</span>
+<span class="s2">                                            cc_stat.calculation_dates)                                 as arr_utilization_l60d</span>
+<span class="s2">                                , arrayAvg(arrayReduce(&#39;groupArrayMovingAvg(10)&#39;, arr_utilization_l60d)) as avg_mov_wind10_util_l60d</span>
+<span class="s2">                                , arrayCount((d, util) -&gt; (d &gt;= expire_date - interval 2 month</span>
+<span class="s2">                        and d &lt; expire_date and util &gt;= 0.99),</span>
+<span class="s2">                                            cc_stat.calculation_dates,</span>
+<span class="s2">                                            cc_stat.utilizations)                                       as cnt_days_util99_l2m</span>
+<span class="s2">                                , cnt_days_util99_l2m / 60                                               as share_util99_l2m</span>
+<span class="s2">                                , arraySum(arrayFilter((p, d) -&gt; (d &lt; expire_date),</span>
+<span class="s2">                                                        ltb_t.points,</span>
+<span class="s2">                                                        ltb_t.dates))                                     as sum_ltb_points</span>
+<span class="s2">                                , arrayCount((d) -&gt; (d &gt;= expire_date - interval 3 month</span>
+<span class="s2">                        and d &lt; expire_date),</span>
+<span class="s2">                                            ping_t.creation_dates)                                      as api_ping_cnt_3m</span>
+<span class="s2">                                , arrayCount((s, d) -&gt; (d &gt;= expire_date - interval 3 month</span>
+<span class="s2">                        and d &lt; expire_date),</span>
+<span class="s2">                                            exp_status_days_counts,</span>
+<span class="s2">                                            exp_calculation_dates)                                      as cnt_exp_days_l3m</span>
+<span class="s2">                                , arrayMax((s, d) -&gt; (d &gt;= expire_date - interval 3 month</span>
+<span class="s2">                        and d &lt; expire_date),</span>
+<span class="s2">                                            exp_status_days_counts,</span>
+<span class="s2">                                            exp_calculation_dates)                                        as max_exp_days_l3m</span>
+<span class="s2">                            from (select cc.borrower_id                  as borrower_id</span>
+<span class="s2">                                    , cc.calculation_date             as calculation_date</span>
+<span class="s2">                                    , ifNull(main_debt, 0) / cc.limit as utilized_limit</span>
+<span class="s2">                                    , arrayCount((s, d) -&gt; (s = </span><span class="si">{</span><span class="n">days_in_expired</span><span class="si">}</span><span class="s2"> and d &gt; calculation_date</span>
+<span class="s2">                                    and d &lt;= calculation_date + interval </span><span class="si">{</span><span class="n">time_window</span><span class="si">}</span><span class="s2"> month),</span>
+<span class="s2">                                                    status_days_counts,</span>
+<span class="s2">                                                    calculation_dates)   as target_15dpd</span>
+<span class="s2">                                    , status_days_counts              as exp_status_days_counts</span>
+<span class="s2">                                    , calculation_dates               as exp_calculation_dates</span>
+<span class="s2">                                    , c.credit_product_id             as credit_product_id</span>
+<span class="s2">                                from escc_report.credit_calculations as cc</span>
+<span class="s2">                                        join escc_report.credit_stage c</span>
+<span class="s2">                                                on cc.borrower_id = c.borrower_id</span>
+<span class="s2">                                        left join (select borrower_id</span>
+<span class="s2">                                                        , groupArray(status_days_count) as status_days_counts</span>
+<span class="s2">                                                        , groupArray(calculation_date)  as calculation_dates</span>
+<span class="s2">                                                    from escc_report.credit_calculations</span>
+<span class="s2">                                                    where calculation_date &gt; &#39;2022-07-01&#39;</span>
+<span class="s2">                                                        and status = &#39;EXPIRED&#39;</span>
+<span class="s2">                                                    group by borrower_id</span>
+<span class="s2">                                    ) as cc_target on cc_target.borrower_id = cc.borrower_id</span>
+<span class="s2">                                where cc.calculation_date &lt; today() - interval </span><span class="si">{</span><span class="n">time_window</span><span class="si">}</span><span class="s2"> month</span>
+<span class="s2">                                    and cc.calculation_date &gt;= &#39;2023-01-01&#39;</span>
+<span class="s2">                                    and toDayOfMonth(cc.calculation_date) = </span><span class="si">{</span><span class="n">day_of_month</span><span class="si">}</span>
+<span class="s2">                                    and cc.status = &#39;ACTIVE&#39;</span>
+<span class="s2">                                    ) cc_filt</span>
+<span class="s2">                                    join product_analytics.risk_holybook as rh</span>
+<span class="s2">                                        on rh.borrower_id_crdes = cc_filt.borrower_id</span>
+<span class="s2">                                            and toDate(rh.date_issuance) &gt; &#39;2022-12-01&#39;</span>
+<span class="s2">                                    join (select borrower_id</span>
+<span class="s2">                                                , groupArray(calculation_date)             as calculation_dates</span>
+<span class="s2">                                                , groupArray(limit)                        as limits</span>
+<span class="s2">                                                , groupArray(ifNull(main_debt, 0))         as main_debts</span>
+<span class="s2">                                                , groupArray(ifNull(main_debt, 0) / limit) as utilizations</span>
+<span class="s2">                                                , groupArray(status)                       as statuses</span>
+<span class="s2">                                                , groupArray(status_days_count)            as status_days_counts</span>
+<span class="s2">                                                , groupArray(amount_due_stat)              as amount_due_stats</span>
+<span class="s2">                                                , groupArray(amount_due)                   as amount_due</span>
+<span class="s2">                                                , groupArray(balance_close_stat)           as balance_close_stats</span>
+<span class="s2">                                                , groupArray(overpaid_stat)                as overpaid_stats</span>
+<span class="s2">                                                , groupArray(paid_current_month)           as paid_current_months</span>
+<span class="s2">                                                , groupArray(paid_past_month)              as paid_past_months</span>
+<span class="s2">                                                , groupArray(paid_dd_current_month)        as paid_dd_current_months</span>
+<span class="s2">                                                , groupArray(paid_dd_past_month)           as paid_dd_past_months</span>
+<span class="s2">                                        from escc_report.credit_calculations</span>
+<span class="s2">                                        where credit_product_id != 1</span>
+<span class="s2">                                        group by borrower_id</span>
+<span class="s2">                                ) as cc_stat on cc_stat.borrower_id = cc_filt.borrower_id</span>
+<span class="s2">                                    left join (select borrower_id</span>
+<span class="s2">                                                    , groupArray(transaction_date)           as transaction_dates</span>
+<span class="s2">                                                    , groupArray(transaction_sign)           as transaction_signs</span>
+<span class="s2">                                                    , groupArray(account_type)               as account_types</span>
+<span class="s2">                                                    , groupArray(operation_type)             as operation_types</span>
+<span class="s2">                                                    , groupArray(amount)                     as amounts</span>
+<span class="s2">                                                    , groupArray(assumeNotNull(end_balance)) as end_balance</span>
+<span class="s2">                                                    , groupArray(operation_type_new)         as operation_types_new</span>
+<span class="s2">                                                from escc_report.transaction_flags tf</span>
+<span class="s2">                                                where status = &#39;PROCESSED&#39;</span>
+<span class="s2">                                                and account_type in (&#39;CREDIT&#39;, &#39;DEBIT&#39;)</span>
+<span class="s2">                                                and transaction_type not in (&#39;REFUND&#39;, &#39;COMMISSION&#39;, &#39;FEE&#39;, &#39;PENALTY&#39;, &#39;INTEREST&#39;)</span>
+<span class="s2">                                                and operation_type_new not in</span>
+<span class="s2">                                                    (&#39;BONUS TO COMPLETE CREDIT&#39;, &#39;PURCHASE_CANCELLATION&#39;, &#39;WITHDRAWAL_CANCELLATION&#39;)</span>
+<span class="s2">                                                group by borrower_id</span>
+<span class="s2">                                ) as tf on tf.borrower_id = cc_filt.borrower_id</span>
+<span class="s2">                                    left join (select borrower_id_crdes  as borrower_id</span>
+<span class="s2">                                                    , groupArray(date)   as dates</span>
+<span class="s2">                                                    , groupArray(points) as points</span>
+<span class="s2">                                                from (select *</span>
+<span class="s2">                                                    from product_analytics.risk_holybook</span>
+<span class="s2">                                                    where date_issuance &gt;= &#39;2022-07-01&#39;</span>
+<span class="s2">                                                        and borrower_id_mm is not NULL) as rh</span>
+<span class="s2">                                                        join es_debezium.life_time_bonus as ltb on ltb.borrower_id = rh.borrower_id_mm</span>
+<span class="s2">                                                group by borrower_id_crdes</span>
+<span class="s2">                                ) as ltb_t on ltb_t.borrower_id = cc_filt.borrower_id</span>
+<span class="s2">                                    LEFT JOIN (select b.id                         as mm_borrower_id</span>
+<span class="s2">                                                    , groupArray(pi.creation_date) as creation_dates</span>
+<span class="s2">                                                from es_debezium.borrower as b</span>
+<span class="s2">                                                        join es_debezium.personal_data as pd</span>
+<span class="s2">                                                            on b.personal_data_id = pd.id</span>
+<span class="s2">                                                        join es_debezium.partner_integration as pi</span>
+<span class="s2">                                                            on pi.passport_identification_number = pd.passport_identification_number</span>
+<span class="s2">                                                group by mm_borrower_id</span>
+<span class="s2">                                ) as ping_t on ping_t.mm_borrower_id = rh.borrower_id_mm</span>
+<span class="s2">                            where calculation_date &gt; rh.date_issuance + interval 3 month</span>
+<span class="s2">                            and cnt_exp_days_l3m = 0</span>
+<span class="s2">                            and utilized_limit &gt; 0.5)</span>
+<span class="s2">                SELECT borrower_id,</span>
+<span class="s2">                    calculation_date as current_calculation_date,</span>
+<span class="s2">                    open_gate_flag,</span>
+<span class="s2">                    target_15dpd     as target,</span>
+<span class="s2">                    avg_mov_wind10_util_l60d,</span>
+<span class="s2">                    share_util99_l2m,</span>
+<span class="s2">                    sum_ltb_points,</span>
+<span class="s2">                    api_ping_cnt_3m,</span>
+<span class="s2">                    case</span>
+<span class="s2">                        when avg_mov_wind10_util_l60d is null then -0.08259494230869506</span>
+<span class="s2">                        when avg_mov_wind10_util_l60d &lt; 0.7506628930568696 then 0.7524771385801483</span>
+<span class="s2">                        when avg_mov_wind10_util_l60d &gt;= 0.7506628930568696 then -0.08259494230869506</span>
+<span class="s2">                        end          as WOE_avg_mov_wind10_util_l60d,</span>
+<span class="s2">                    case</span>
+<span class="s2">                        when share_util99_l2m is null then 0.12598074280250177</span>
+<span class="s2">                        when share_util99_l2m &lt; 0.5583333373069764 then 0.12598074280250177</span>
+<span class="s2">                        when share_util99_l2m &gt;= 0.5583333373069764 then -0.3735906983902008</span>
+<span class="s2">                        end          as WOE_share_util99_l2m,</span>
+<span class="s2">                    case</span>
+<span class="s2">                        when sum_ltb_points is null then -0.089602001713622</span>
+<span class="s2">                        when sum_ltb_points &lt; 12995.500000000002 then -0.089602001713622</span>
+<span class="s2">                        when sum_ltb_points &gt;= 12995.500000000002 then 0.4891725481044179</span>
+<span class="s2">                        end          as WOE_sum_ltb_points,</span>
+<span class="s2">                    case</span>
+<span class="s2">                        when api_ping_cnt_3m is null then 0.377281356696276</span>
+<span class="s2">                        when api_ping_cnt_3m &lt; 2.5 then 0.377281356696276</span>
+<span class="s2">                        when api_ping_cnt_3m &gt;= 2.5 then -0.79294295046311</span>
+<span class="s2">                        end          as WOE_api_ping_cnt_3m</span>
+<span class="s2">                FROM sc</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

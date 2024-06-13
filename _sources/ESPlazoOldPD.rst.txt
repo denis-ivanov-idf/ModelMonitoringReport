@@ -1,0 +1,12 @@
+ESPlazoOldPD package
+====================
+.. note::
+   This module is used for old plazo models monitoring.
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   ESPlazoOldPD.Core

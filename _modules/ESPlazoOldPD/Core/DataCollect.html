@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESPlazoOldPD.Core.DataCollect &mdash; DS model monitoring 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DS model monitoring
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">How-to guides:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial.html">How-to guides</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">DS model analytics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Helps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../support.html">Helps</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DS model monitoring</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ESPlazoOldPD.Core.DataCollect</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ESPlazoOldPD.Core.DataCollect</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># function for loading target</span>
+<div class="viewcode-block" id="collect_target_scoring">
+<a class="viewcode-back" href="../../../ESPlazoOldPD.Core.html#ESPlazoOldPD.Core.DataCollect.collect_target_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_target_scoring</span><span class="p">(</span>
+    <span class="n">db_client</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">unnax</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects target from the database based on the specified model name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        model_name (str): The name of the model for which target is being collected.</span>
+<span class="sd">        unnax (str): The unnax flag (MM or PLAZO) for model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A DataFrame containing the target.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the model name is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;sm_Plz_mm2plazo&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                select borrower_id_mm                                      as mm_borrower_id</span>
+<span class="s2">                    , borrower_id_crdes                                    as crdes_borrower_id</span>
+<span class="s2">                    , date_of_application                                  as plz_date_application</span>
+<span class="s2">                    , date_issuance                                        as plz_date_issuance</span>
+<span class="s2">                    , og_approve_flg                                       as open_gate_flag</span>
+<span class="s2">                    , RiskSegment_simulation                               as risk_segment</span>
+<span class="s2">                    , last_credit_number_mm_all                            as mm_credit_number</span>
+<span class="s2">                    , if(toDate(date_issuance) &lt; today() - interval 6 month - interval 2 day,</span>
+<span class="s2">                        if(dr.expired_days_count_mob_6 &gt; 30, 1, 0), Null) as target30m6</span>
+<span class="s2">                    , if(toDate(date_issuance) &lt; today() - interval 3 month - interval 2 day,</span>
+<span class="s2">                        if(dr.expired_days_count_mob_3 &gt; 30, 1, 0), Null) as target30m3</span>
+<span class="s2">                from product_analytics.risk_holybook rh</span>
+<span class="s2">                where borrower_id_mm &gt; 0</span>
+<span class="s2">                AND toDate(date_issuance) &gt;= &#39;2022-07-01&#39;</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;sm_Plz_BehUnnax&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">unnax</span> <span class="o">==</span> <span class="s2">&quot;MM&quot;</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    select coalesce(borrower_id_mm, 0)                                           as mm_borrower_id</span>
+<span class="s2">                        , borrower_id_crdes                                                     as crdes_borrower_id</span>
+<span class="s2">                        , date_issuance                                                         as plz_date_issuance</span>
+<span class="s2">                        , og_approve_flg                                                        as open_gate_flag</span>
+<span class="s2">                        , RiskSegment_simulation                                                as risk_segment</span>
+<span class="s2">                        , last_credit_number_mm_all                                             as mm_credit_number</span>
+<span class="s2">                        , if(toDate(date_issuance) &lt; today() - interval 6 month - interval 2 day,</span>
+<span class="s2">                                            if(dr.expired_days_count_mob_6 &gt; 30, 1, 0), Null) as target30m6</span>
+<span class="s2">                        , if(toDate(date_issuance) &lt; today() - interval 3 month - interval 2 day,</span>
+<span class="s2">                                            if(dr.expired_days_count_mob_3 &gt; 30, 1, 0), Null) as target30m3</span>
+<span class="s2">                    from product_analytics.risk_holybook rh</span>
+<span class="s2">                    where toDate(date_issuance) &gt;= &#39;2022-11-01&#39;</span>
+<span class="s2">                    AND borrower_id_crdes not in</span>
+<span class="s2">                        (select borrower_id</span>
+<span class="s2">                        from escc_master.unnax_parsed_response</span>
+<span class="s2">                        where request_code != &#39;&#39;</span>
+<span class="s2">                            AND communication_type = &#39;FITNANCE_READ&#39;)</span>
+<span class="s2">                    &quot;&quot;&quot;</span>
+        <span class="k">elif</span> <span class="n">unnax</span> <span class="o">==</span> <span class="s2">&quot;PLAZO&quot;</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    select coalesce(borrower_id_mm, 0)               as mm_borrower_id</span>
+<span class="s2">                        , borrower_id_crdes                          as crdes_borrower_id</span>
+<span class="s2">                        , date_issuance                              as plz_date_issuance</span>
+<span class="s2">                        , og_approve_flg                             as open_gate_flag</span>
+<span class="s2">                        , RiskSegment_simulation                     as risk_segment</span>
+<span class="s2">                        , last_credit_number_mm_all                  as mm_credit_number</span>
+<span class="s2">                        , if(toDate(date_issuance) &lt; today() - interval 6 month - interval 2 day,</span>
+<span class="s2">                                            if(dr.expired_days_count_mob_6 &gt; 30, 1, 0), Null) as target30m6</span>
+<span class="s2">                        , if(toDate(date_issuance) &lt; today() - interval 3 month - interval 2 day,</span>
+<span class="s2">                                            if(dr.expired_days_count_mob_3 &gt; 30, 1, 0), Null) as target30m3</span>
+<span class="s2">                    from product_analytics.risk_holybook rh</span>
+<span class="s2">                    where toDate(date_issuance) &gt;= &#39;2022-11-01&#39;</span>
+<span class="s2">                    AND borrower_id_crdes in</span>
+<span class="s2">                        (select borrower_id</span>
+<span class="s2">                        from escc_master.unnax_parsed_response</span>
+<span class="s2">                        where request_code != &#39;&#39;</span>
+<span class="s2">                            AND communication_type = &#39;FITNANCE_READ&#39;)</span>
+<span class="s2">                    &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mm_borrower_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;mm_borrower_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<span class="c1"># function for loading features</span>
+<div class="viewcode-block" id="collect_data_scoring">
+<a class="viewcode-back" href="../../../ESPlazoOldPD.Core.html#ESPlazoOldPD.Core.DataCollect.collect_data_scoring">[docs]</a>
+<span class="k">def</span> <span class="nf">collect_data_scoring</span><span class="p">(</span>
+    <span class="n">db_client</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">base_table</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">unnax</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collects data for scoring based on the specified model name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        db_client: The ClickHouse client used to execute commands and fetch data.</span>
+<span class="sd">        model_name (str): The name of the model for which data is being collected.</span>
+<span class="sd">        unnax (str): The unnax flag (MM or PLAZO) for model.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: A DataFrame containing the collected data.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the model name is not recognized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;sm_Plz_mm2plazo&quot;</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        with sc as (select T1.mm_borrower_id       as mm_borrower_id</span>
+<span class="s2">                        , crdes_borrower_id</span>
+<span class="s2">                        , open_gate_flag</span>
+<span class="s2">                        , risk_segment</span>
+<span class="s2">                        , mm_credit_number</span>
+<span class="s2">                        , T1.plz_date_application as plz_date_application</span>
+<span class="s2">                        , T1.plz_date_issuance as plz_date_issuance</span>
+<span class="s2">                        , T2.penalty_amount       as penalty_amount</span>
+<span class="s2">                        , api_ping_cnt_2m</span>
+<span class="s2">                        , ltb_t.ltb_sum_points    as ltb_sum_points</span>
+<span class="s2">                        , target30m6</span>
+<span class="s2">                        , target30m3</span>
+<span class="s2">                    from </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                            left join (select borrower_id</span>
+<span class="s2">                                            , plz_date_application</span>
+<span class="s2">                                            , arrayFilter((var) -&gt; (var &gt; 0 and var is not null),</span>
+<span class="s2">                                                        groupArray(penalty_amount))[1] as penalty_amount</span>
+<span class="s2">                                        from (</span>
+<span class="s2">                                                select T2.borrower_id as borrower_id</span>
+<span class="s2">                                                    , plz_date_application</span>
+<span class="s2">                                                    , penalty_amount</span>
+
+<span class="s2">                                                from </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                                                        join es_report.inflow T2 on T1.mm_borrower_id = T2.borrower_id</span>
+<span class="s2">                                                where T2.status = &#39;COMPLETED&#39;</span>
+<span class="s2">                                                and T2.date_repaid &lt; T1.plz_date_application</span>
+<span class="s2">                                                order by mm_borrower_id, date_requested desc</span>
+<span class="s2">                                                ) tmp</span>
+<span class="s2">                                        group by borrower_id, plz_date_application</span>
+<span class="s2">                        ) T2 on T2.borrower_id = T1.mm_borrower_id</span>
+<span class="s2">                        and T2.plz_date_application = T1.plz_date_application</span>
+<span class="s2">                            left join (select mm_borrower_id</span>
+<span class="s2">                                            , plz_date_application</span>
+<span class="s2">                                            , length(ping_ids)           as api_ping_cnt_total</span>
+<span class="s2">                                            , arrayCount((d) -&gt; (toDate(d) &gt;= toDate(plz_date_application) - interval 2 month),</span>
+<span class="s2">                                                        creation_dates) as api_ping_cnt_2m</span>
+<span class="s2">                                        from (select b.id                         as mm_borrower_id</span>
+<span class="s2">                                                , T1.plz_date_application      as plz_date_application</span>
+
+<span class="s2">                                                , groupArray(pi.id)            as ping_ids</span>
+<span class="s2">                                                , groupArray(pi.creation_date) as creation_dates</span>
+<span class="s2">                                                , groupArray(pi.stage)         as stages</span>
+<span class="s2">                                                , groupArray(pi.status)        as statuses</span>
+<span class="s2">                                                , groupArray(partner.name)     as partner_names</span>
+<span class="s2">                                                , groupArray(partner.type)     as partner_types</span>
+<span class="s2">                                                , groupArray(partner.status)   as parnter_statuses</span>
+<span class="s2">                                                , topK(2)(partner.name)        as top2_partners</span>
+<span class="s2">                                            from </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                                                    join es_debezium.borrower as b</span>
+<span class="s2">                                                        on T1.mm_borrower_id = b.id</span>
+<span class="s2">                                                    join es_debezium.personal_data as pd</span>
+<span class="s2">                                                        on b.personal_data_id = pd.id</span>
+<span class="s2">                                                    join es_debezium.partner_integration as pi</span>
+<span class="s2">                                                        on pi.passport_identification_number_sip_hash_128 =</span>
+<span class="s2">                                                                pd.passport_identification_number_sip_hash_128</span>
+<span class="s2">                                                    join es_debezium.partner as partner</span>
+<span class="s2">                                                        on pi.partner_id = partner.id</span>
+<span class="s2">                                            where pi.creation_date &lt; T1.plz_date_application</span>
+<span class="s2">                                            group by b.id, T1.plz_date_application</span>
+<span class="s2">                                                )</span>
+<span class="s2">                        ) as ping_t on ping_t.mm_borrower_id = T1.mm_borrower_id</span>
+<span class="s2">                        and ping_t.plz_date_application = T1.plz_date_application</span>
+<span class="s2">                            left join (select T1.mm_borrower_id as mm_borrower_id</span>
+<span class="s2">                                            , plz_date_application</span>
+<span class="s2">                                            , sum(ltb.points)   as ltb_sum_points</span>
+<span class="s2">                                            , count(ltb.points) as ltb_cnt_points</span>
+<span class="s2">                                        from </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                                                join es_debezium.life_time_bonus as ltb on ltb.borrower_id = T1.mm_borrower_id</span>
+<span class="s2">                                        where ltb.date &lt; T1.plz_date_application</span>
+<span class="s2">                                        group by mm_borrower_id, plz_date_application</span>
+<span class="s2">                        ) as ltb_t on ltb_t.mm_borrower_id = T1.mm_borrower_id</span>
+<span class="s2">                        and ltb_t.plz_date_application = T1.plz_date_application)</span>
+<span class="s2">        select crdes_borrower_id                                          as borrower_id,</span>
+<span class="s2">            plz_date_issuance,</span>
+<span class="s2">            open_gate_flag,</span>
+<span class="s2">            risk_segment,</span>
+<span class="s2">            mm_credit_number,</span>
+<span class="s2">            target30m6,</span>
+<span class="s2">            target30m3,</span>
+<span class="s2">            penalty_amount,</span>
+<span class="s2">            api_ping_cnt_2m,</span>
+<span class="s2">            ltb_sum_points,</span>
+<span class="s2">            case</span>
+<span class="s2">                when penalty_amount is null then 0.1041768666338863</span>
+<span class="s2">                when penalty_amount &lt; 38.03620910644532 then 0.1041768666338863</span>
+<span class="s2">                when penalty_amount &gt;= 38.03620910644532 then -0.5066542294069872</span>
+<span class="s2">                end                                                    as WOE_penalty_amount,</span>
+
+<span class="s2">            case</span>
+<span class="s2">                when api_ping_cnt_2m is null then 0.4590941550216412</span>
+<span class="s2">                when api_ping_cnt_2m &lt; 1e-05 then 0.4590941550216412</span>
+<span class="s2">                when api_ping_cnt_2m &gt;= 1e-05 and api_ping_cnt_2m &lt; 5.500000000000001 then -0.14917098689265548</span>
+<span class="s2">                when api_ping_cnt_2m &gt;= 5.500000000000001 then -1.003921192542504</span>
+<span class="s2">                end                                                    as WOE_api_ping_cnt_2m,</span>
+
+<span class="s2">            case</span>
+<span class="s2">                when ltb_sum_points is null then 0.46776652696277493</span>
+<span class="s2">                when ltb_sum_points &lt; 535.5000000000001 then -0.7769820921055327</span>
+<span class="s2">                when ltb_sum_points &gt;= 535.5000000000001 and ltb_sum_points &lt; 4294.000000000001 then -0.2131355424186427</span>
+<span class="s2">                when ltb_sum_points &gt;= 4294.000000000001 then 0.46776652696277493</span>
+<span class="s2">                end                                                    as WOE_ltb_sum_points</span>
+<span class="s2">        from sc</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;sm_Plz_BehUnnax&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">unnax</span> <span class="o">==</span> <span class="s2">&quot;MM&quot;</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT crdes_borrower_id as borrower_id</span>
+<span class="s2">                , plz_date_issuance</span>
+<span class="s2">                , upload_date</span>
+<span class="s2">                , open_gate_flag</span>
+<span class="s2">                , risk_segment</span>
+<span class="s2">                , mm_credit_number</span>
+<span class="s2">                , target30m6</span>
+<span class="s2">                , target30m3</span>
+<span class="s2">                , share_70perc_balance_occur</span>
+<span class="s2">                , cnt_less_neg250eu_am_trans_l3m</span>
+<span class="s2">                , neg_loan_to_avg_balance_l3m</span>
+<span class="s2">                , median_balance_amount_l3m</span>
+<span class="s2">                , loans_expenses_l6m</span>
+<span class="s2">                , loan_amount_l1m_to_prev_l1m</span>
+<span class="s2">                , less_10perc_balance_occur_l3m</span>
+<span class="s2">                , loans_income_l1m_new</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN median_balance_amount_l3m &lt;= 148.84 THEN -0.21126516369158121</span>
+<span class="s2">                    WHEN median_balance_amount_l3m &gt; 148.84 THEN 0.10406061306564474</span>
+<span class="s2">                    WHEN median_balance_amount_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS median_balance_amount_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN cnt_less_neg250eu_am_trans_l3m &lt;= 13.5 THEN 0.13014780260676284</span>
+<span class="s2">                    WHEN cnt_less_neg250eu_am_trans_l3m &gt; 13.5 THEN -0.20205859029893514</span>
+<span class="s2">                    WHEN cnt_less_neg250eu_am_trans_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS cnt_less_neg250eu_am_trans_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN loans_expenses_l6m &lt;= -3.0 THEN 0.3103099303584578</span>
+<span class="s2">                    WHEN loans_expenses_l6m &gt; -3.0 THEN -0.47405379316231144</span>
+<span class="s2">                    WHEN loans_expenses_l6m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS loans_expenses_l6m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN loan_amount_l1m_to_prev_l1m &lt;= 0.45 THEN -0.46599284490067927</span>
+<span class="s2">                    WHEN loan_amount_l1m_to_prev_l1m &gt; 0.45 THEN 0.2330001300608806</span>
+<span class="s2">                    WHEN loan_amount_l1m_to_prev_l1m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS loan_amount_l1m_to_prev_l1m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN neg_loan_to_avg_balance_l3m &lt;= -1.07 THEN 0.13376674153036006</span>
+<span class="s2">                    WHEN neg_loan_to_avg_balance_l3m &gt; -1.07 THEN -0.4274820366004374</span>
+<span class="s2">                    WHEN neg_loan_to_avg_balance_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS neg_loan_to_avg_balance_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN less_10perc_balance_occur_l3m &lt;= 41.5 THEN 0.34798774662033694</span>
+<span class="s2">                    WHEN less_10perc_balance_occur_l3m &gt; 41.5 THEN -0.23187869584642007</span>
+<span class="s2">                    WHEN less_10perc_balance_occur_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS less_10perc_balance_occur_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN share_70perc_balance_occur &lt;= 0.51 THEN 0.1305168199178619</span>
+<span class="s2">                    WHEN share_70perc_balance_occur &gt; 0.51 THEN -0.15625429824637327</span>
+<span class="s2">                    WHEN share_70perc_balance_occur IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS share_70perc_balance_occur_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN loans_income_l1m_new &lt;= 1798.0 THEN 0.10654244380240496</span>
+<span class="s2">                    WHEN loans_income_l1m_new &gt; 1798.0 THEN -0.29992503205123155</span>
+<span class="s2">                    WHEN loans_income_l1m_new IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END AS loans_income_l1m_new_WOE</span>
+<span class="s2">            FROM (SELECT T1.crdes_borrower_id                                 as crdes_borrower_id</span>
+<span class="s2">                    , T1.target30m6                                           as target30m6</span>
+<span class="s2">                    , T1.target30m3                                           as target30m3</span>
+<span class="s2">                    , T1.mm_borrower_id                                       as mm_borrower_id</span>
+<span class="s2">                    , T1.plz_date_issuance                                    as plz_date_issuance</span>
+<span class="s2">                    , T1.open_gate_flag                                       as open_gate_flag</span>
+<span class="s2">                    , T1.risk_segment                                         as risk_segment</span>
+<span class="s2">                    , T1.mm_credit_number                                     as mm_credit_number</span>
+<span class="s2">                    , T2.upload_date                                          as upload_date</span>
+<span class="s2">                    , round(arraySum(arrayFilter(</span>
+<span class="s2">                        (sa, sct, svd) -&gt; (sct in (&#39;FAST LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CONSUMER LOANS&#39;, &#39;GENERAL LOANS&#39;,</span>
+<span class="s2">                                                &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;, &#39;CAR LEASING&#39;,</span>
+<span class="s2">                                                &#39;MORTGAGE&#39;) and</span>
+<span class="s2">                                        dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 60 and</span>
+<span class="s2">                                        dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &gt; 30 and</span>
+<span class="s2">                                        sa &lt; 0 and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_amounts,</span>
+<span class="s2">                        statements_category_titles,</span>
+<span class="s2">                        statements_value_dates)),</span>
+<span class="s2">                            2)                                                as unnax_negative_loan_amount_prev_l1m</span>
+<span class="s2">                    , round(arraySum(arrayFilter(</span>
+<span class="s2">                        (sa, sct, svd) -&gt; (sct in (&#39;FAST LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CONSUMER LOANS&#39;, &#39;GENERAL LOANS&#39;,</span>
+<span class="s2">                                                &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;, &#39;CAR LEASING&#39;,</span>
+<span class="s2">                                                &#39;MORTGAGE&#39;) and</span>
+<span class="s2">                                        dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 30 and</span>
+<span class="s2">                                        sa &lt; 0 and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_amounts,</span>
+<span class="s2">                        statements_category_titles,</span>
+<span class="s2">                        statements_value_dates)),</span>
+<span class="s2">                            2)                                                as unnax_negative_loan_amount_l1m</span>
+<span class="s2">                    , round(if(unnax_negative_loan_amount_prev_l1m != 0 and unnax_negative_loan_amount_l1m != 0,</span>
+<span class="s2">                                unnax_negative_loan_amount_l1m / unnax_negative_loan_amount_prev_l1m, -1),</span>
+<span class="s2">                            2)                                                as loan_amount_l1m_to_prev_l1m</span>
+<span class="s2">                    , round(arrayReduce(&#39;median&#39;, arrayFilter(</span>
+<span class="s2">                        (balance, month) -&gt; (dateDiff(&#39;month&#39;, month, mnth_upload_date) &lt;= 3 and balance &gt;= 0 and</span>
+<span class="s2">                                            toDate(month) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_balances,</span>
+<span class="s2">                        mnth_transactions)),</span>
+<span class="s2">                            2)                                                as median_balance_amount_l3m</span>
+<span class="s2">                    , arrayCount((sa, svd) -&gt; (sa &lt; -250 and dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 90 and</span>
+<span class="s2">                                                toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                    statements_amounts,</span>
+<span class="s2">                                    statements_value_dates)                      as cnt_less_neg250eu_am_trans_l3m</span>
+<span class="s2">                    , arrayCount((sb, svd) -&gt; (sb &lt;= 0.1 * avg_balance_amount_l3m</span>
+<span class="s2">                    and dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 90 and toDate(svd) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                    statements_balances,</span>
+<span class="s2">                                    statements_value_dates)                      as less_10perc_balance_occur_l3m</span>
+<span class="s2">                    , round(arrayAvg(arrayFilter(</span>
+<span class="s2">                        (balance, month) -&gt; (dateDiff(&#39;month&#39;, month, mnth_upload_date) &lt;= 3 and balance &gt;= 0 and</span>
+<span class="s2">                                            toDate(month) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_balances,</span>
+<span class="s2">                        mnth_transactions)),</span>
+<span class="s2">                            2)                                                as avg_balance_amount_l3m</span>
+<span class="s2">                    , round(arrayReduce(&#39;sum&#39;,</span>
+<span class="s2">                                        arrayFilter(</span>
+<span class="s2">                                                (sa, sct, svd) -&gt; (sct in (&#39;FAST LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CONSUMER LOANS&#39;,</span>
+<span class="s2">                                                                            &#39;GENERAL LOANS&#39;,</span>
+<span class="s2">                                                                            &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;, &#39;CAR LEASING&#39;,</span>
+<span class="s2">                                                                            &#39;MORTGAGE&#39;) and</span>
+<span class="s2">                                                                    dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 90 and</span>
+<span class="s2">                                                                    sa &lt; 0 and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                                statements_amounts,</span>
+<span class="s2">                                                statements_category_titles,</span>
+<span class="s2">                                                statements_value_dates)),</span>
+<span class="s2">                            2)                                                as unnax_negative_loan_amount_l3m</span>
+<span class="s2">                    , round(if(avg_balance_amount_l3m != 0,</span>
+<span class="s2">                                unnax_negative_loan_amount_l3m / avg_balance_amount_l3m, -1),</span>
+<span class="s2">                            2)                                                as neg_loan_to_avg_balance_l3m</span>
+<span class="s2">                    , round(arraySum(arrayFilter((sa, svd, sct) -&gt; (dateDiff(&#39;day&#39;, svd, upload_date) &lt;= 180</span>
+<span class="s2">                    and sct in (&#39;GENERAL LOANS&#39;, &#39;FAST LOANS&#39;, &#39;CONSUMER LOANS&#39;) and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                                    statements_amounts,</span>
+<span class="s2">                                                    statements_value_dates,</span>
+<span class="s2">                                                    statements_category_titles)),</span>
+<span class="s2">                            2)                                                as loans_expenses_l6m</span>
+<span class="s2">                    , round(arraySum(arrayFilter((sa, svd, sct) -&gt; (dateDiff(&#39;month&#39;, svd, upload_date) &lt;= 1</span>
+<span class="s2">                    and sct in</span>
+<span class="s2">                        (&#39;GENERAL LOANS&#39;, &#39;FAST LOANS&#39;, &#39;CONSUMER LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;) and</span>
+<span class="s2">                                                                    toDate(svd) &lt; toDate(T1.plz_date_issuance)</span>
+<span class="s2">                    and sa &gt; 0),</span>
+<span class="s2">                                                    statements_amounts,</span>
+<span class="s2">                                                    statements_value_dates,</span>
+<span class="s2">                                                    statements_category_titles)),</span>
+<span class="s2">                            2)                                                as loans_income_l1m_new</span>
+<span class="s2">                    , arrayCount((sb, svd) -&gt; (sb &lt;= 0.7 * avg_balance_all</span>
+<span class="s2">                    and toDate(svd) &lt;= toDate(upload_date) and toDate(svd) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                    statements_balances,</span>
+<span class="s2">                                    statements_value_dates)                      as less_70perc_balance_occur</span>
+
+<span class="s2">                    , round(arrayAvg(arrayFilter((balance, svd) -&gt; (toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                                    statements_balances,</span>
+<span class="s2">                                                    statements_value_dates)), 2) as avg_balance_all</span>
+<span class="s2">                    , round(if(less_70perc_balance_occur = 0, 1, less_70perc_balance_occur) /</span>
+<span class="s2">                            if(avg_balance_all = 0, 1, avg_balance_all),</span>
+<span class="s2">                            2)                                                as share_70perc_balance_occur</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                        LEFT JOIN (SELECT i.borrower_id                         as mm_borrower_id,</span>
+<span class="s2">                                            T1.plz_date_issuance                  as plz_date_issuance,</span>
+<span class="s2">                                            max(T.mnth_upload_date)               as mnth_upload_date,</span>
+<span class="s2">                                            max(T.upload_date)                       upload_date,</span>
+<span class="s2">                                            groupArray(T.mnth_transaction)        as mnth_transactions,</span>
+<span class="s2">                                            groupArray(statements_value_date)     as statements_value_dates,</span>
+<span class="s2">                                            groupArray(statements_amount)         as statements_amounts,</span>
+<span class="s2">                                            groupArray(statements_balance)        as statements_balances,</span>
+<span class="s2">                                            groupArray(statements_category_title) as statements_category_titles,</span>
+<span class="s2">                                            groupArray(statements_bank_id)        as statements_bank_ids,</span>
+<span class="s2">                                            groupArray(statements_bank_group_id)  as statements_bank_group_ids,</span>
+<span class="s2">                                            groupArray(statements_concepts)       as statements_concepts</span>
+<span class="s2">                                    FROM (</span>
+<span class="s2">                                            SELECT request_code</span>
+<span class="s2">                                                    , toStartOfMonth(upload_date)           mnth_upload_date</span>
+<span class="s2">                                                    , upload_date</span>
+<span class="s2">                                                    , toStartOfMonth(statements_value_date) mnth_transaction</span>
+<span class="s2">                                                    , statements_value_date</span>
+<span class="s2">                                                    , statements_amount</span>
+<span class="s2">                                                    , statements_balance</span>
+<span class="s2">                                                    , statements_category_title</span>
+<span class="s2">                                                    , statements_bank_id</span>
+<span class="s2">                                                    , statements_bank_group_id</span>
+<span class="s2">                                                    , statements_concepts</span>
+<span class="s2">                                            FROM es_master.unnax_parsed_response</span>
+<span class="s2">                                                ARRAY JOIN statements_value_date</span>
+<span class="s2">                                                , statements_amount</span>
+<span class="s2">                                                , statements_balance</span>
+<span class="s2">                                                , statements_category_title</span>
+<span class="s2">                                                , statements_bank_id</span>
+<span class="s2">                                                , statements_bank_group_id</span>
+<span class="s2">                                                , statements_concepts</span>
+<span class="s2">                                            WHERE 1 = 1</span>
+<span class="s2">                                                AND statements_value_date &gt;= &#39;2021-01-01&#39;</span>
+<span class="s2">                                                AND toStartOfDay(statements_value_date) &lt; toStartOfDay(upload_date)</span>
+<span class="s2">                                            ) T</span>
+<span class="s2">                                            JOIN es_debezium.cp_unnax cu on T.request_code = cu.request_code</span>
+<span class="s2">                                            JOIN es_debezium.credit i on cu.credit_request_id = i.id</span>
+<span class="s2">                                            JOIN </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                                                    on T1.mm_borrower_id = i.borrower_id</span>
+<span class="s2">                                            JOIN (</span>
+<span class="s2">                                        SELECT *</span>
+<span class="s2">                                        FROM (</span>
+<span class="s2">                                                SELECT i.borrower_id         as   mm_borrower_id</span>
+<span class="s2">                                                        , T1.request_code    as  request_code</span>
+<span class="s2">                                                        , mnth_upload_date</span>
+<span class="s2">                                                        , mnth_transaction</span>
+<span class="s2">                                                        , ROW_NUMBER() OVER (PARTITION BY i.borrower_id, mnth_transaction ORDER BY mnth_upload_date DESC) RN</span>
+<span class="s2">                                                FROM (</span>
+<span class="s2">                                                            SELECT request_code</span>
+<span class="s2">                                                                , toStartOfMonth(upload_date)           mnth_upload_date</span>
+<span class="s2">                                                                , toStartOfMonth(statements_value_date) mnth_transaction</span>
+<span class="s2">                                                            FROM es_master.unnax_parsed_response</span>
+<span class="s2">                                                                    ARRAY JOIN statements_value_date</span>
+<span class="s2">                                                            WHERE statements_value_date &gt;= &#39;2021-01-01&#39;</span>
+<span class="s2">                                                            AND statements_value_date &lt; today()</span>
+<span class="s2">                                                            ) T1</span>
+<span class="s2">                                                            JOIN es_debezium.cp_unnax cu on T1.request_code = cu.request_code</span>
+<span class="s2">                                                            JOIN es_report.inflow i on cu.credit_request_id = i.id</span>
+<span class="s2">                                                WHERE cu.valid_report = 1</span>
+<span class="s2">                                                GROUP BY i.borrower_id, T1.request_code, mnth_upload_date, mnth_transaction) T2</span>
+<span class="s2">                                        WHERE RN = 1</span>
+<span class="s2">                                        ) ts</span>
+<span class="s2">                                                    ON i.borrower_id =</span>
+<span class="s2">                                                    ts.mm_borrower_id</span>
+<span class="s2">                                                        AND ts.request_code = T.request_code</span>
+<span class="s2">                                                        AND ts.mnth_upload_date = T.mnth_upload_date</span>
+<span class="s2">                                                        AND ts.mnth_transaction = T.mnth_transaction</span>
+<span class="s2">                                                        AND toDate(T.upload_date) &lt;= toDate(T1.plz_date_issuance)</span>
+<span class="s2">                                    GROUP BY i.borrower_id, T1.plz_date_issuance</span>
+<span class="s2">                    ) T2 ON T1.mm_borrower_id = T2.mm_borrower_id</span>
+<span class="s2">                    and T1.plz_date_issuance = T2.plz_date_issuance</span>
+<span class="s2">                    ) as sc</span>
+<span class="s2">                &quot;&quot;&quot;</span>
+        <span class="k">elif</span> <span class="n">unnax</span> <span class="o">==</span> <span class="s2">&quot;PLAZO&quot;</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            SELECT crdes_borrower_id as borrower_id</span>
+<span class="s2">                , plz_date_issuance</span>
+<span class="s2">                , upload_date</span>
+<span class="s2">                , open_gate_flag</span>
+<span class="s2">                , risk_segment</span>
+<span class="s2">                , mm_credit_number</span>
+<span class="s2">                , target30m6</span>
+<span class="s2">                , target30m3</span>
+<span class="s2">                , share_70perc_balance_occur</span>
+<span class="s2">                , cnt_less_neg250eu_am_trans_l3m</span>
+<span class="s2">                , neg_loan_to_avg_balance_l3m</span>
+<span class="s2">                , median_balance_amount_l3m</span>
+<span class="s2">                , loans_expenses_l6m</span>
+<span class="s2">                , loan_amount_l1m_to_prev_l1m</span>
+<span class="s2">                , less_10perc_balance_occur_l3m</span>
+<span class="s2">                , loans_income_l1m_new</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN median_balance_amount_l3m &lt;= 148.84 THEN -0.21126516369158121</span>
+<span class="s2">                    WHEN median_balance_amount_l3m &gt; 148.84 THEN 0.10406061306564474</span>
+<span class="s2">                    WHEN median_balance_amount_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS median_balance_amount_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN cnt_less_neg250eu_am_trans_l3m &lt;= 13.5 THEN 0.13014780260676284</span>
+<span class="s2">                    WHEN cnt_less_neg250eu_am_trans_l3m &gt; 13.5 THEN -0.20205859029893514</span>
+<span class="s2">                    WHEN cnt_less_neg250eu_am_trans_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS cnt_less_neg250eu_am_trans_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN loans_expenses_l6m &lt;= -3.0 THEN 0.3103099303584578</span>
+<span class="s2">                    WHEN loans_expenses_l6m &gt; -3.0 THEN -0.47405379316231144</span>
+<span class="s2">                    WHEN loans_expenses_l6m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS loans_expenses_l6m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN loan_amount_l1m_to_prev_l1m &lt;= 0.45 THEN -0.46599284490067927</span>
+<span class="s2">                    WHEN loan_amount_l1m_to_prev_l1m &gt; 0.45 THEN 0.2330001300608806</span>
+<span class="s2">                    WHEN loan_amount_l1m_to_prev_l1m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS loan_amount_l1m_to_prev_l1m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN neg_loan_to_avg_balance_l3m &lt;= -1.07 THEN 0.13376674153036006</span>
+<span class="s2">                    WHEN neg_loan_to_avg_balance_l3m &gt; -1.07 THEN -0.4274820366004374</span>
+<span class="s2">                    WHEN neg_loan_to_avg_balance_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS neg_loan_to_avg_balance_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN less_10perc_balance_occur_l3m &lt;= 41.5 THEN 0.34798774662033694</span>
+<span class="s2">                    WHEN less_10perc_balance_occur_l3m &gt; 41.5 THEN -0.23187869584642007</span>
+<span class="s2">                    WHEN less_10perc_balance_occur_l3m IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS less_10perc_balance_occur_l3m_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN share_70perc_balance_occur &lt;= 0.51 THEN 0.1305168199178619</span>
+<span class="s2">                    WHEN share_70perc_balance_occur &gt; 0.51 THEN -0.15625429824637327</span>
+<span class="s2">                    WHEN share_70perc_balance_occur IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS share_70perc_balance_occur_WOE</span>
+<span class="s2">                , CASE</span>
+<span class="s2">                    WHEN loans_income_l1m_new &lt;= 1798.0 THEN 0.10654244380240496</span>
+<span class="s2">                    WHEN loans_income_l1m_new &gt; 1798.0 THEN -0.29992503205123155</span>
+<span class="s2">                    WHEN loans_income_l1m_new IS NULL THEN 0.0</span>
+<span class="s2">                    ELSE 0 END                                           AS loans_income_l1m_new_WOE</span>
+<span class="s2">            FROM (SELECT T1.crdes_borrower_id                                 as crdes_borrower_id</span>
+<span class="s2">                    , T1.mm_borrower_id                                       as mm_borrower_id</span>
+<span class="s2">                    , T1.target30m6                                           as target30m6</span>
+<span class="s2">                    , T1.target30m3                                           as target30m3</span>
+<span class="s2">                    , T1.plz_date_issuance                                    as plz_date_issuance</span>
+<span class="s2">                    , T1.open_gate_flag                                       as open_gate_flag</span>
+<span class="s2">                    , T1.risk_segment                                         as risk_segment</span>
+<span class="s2">                    , T1.mm_credit_number                                     as mm_credit_number</span>
+<span class="s2">                    , T2.upload_date                                          as upload_date</span>
+<span class="s2">                    , round(arraySum(arrayFilter(</span>
+<span class="s2">                        (sa, sct, svd) -&gt; (sct in (&#39;FAST LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CONSUMER LOANS&#39;, &#39;GENERAL LOANS&#39;,</span>
+<span class="s2">                                                &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;, &#39;CAR LEASING&#39;,</span>
+<span class="s2">                                                &#39;MORTGAGE&#39;) and</span>
+<span class="s2">                                        dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 60 and</span>
+<span class="s2">                                        dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &gt; 30 and</span>
+<span class="s2">                                        sa &lt; 0 and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_amounts,</span>
+<span class="s2">                        statements_category_titles,</span>
+<span class="s2">                        statements_value_dates)),</span>
+<span class="s2">                            2)                                                as unnax_negative_loan_amount_prev_l1m</span>
+<span class="s2">                    , round(arraySum(arrayFilter(</span>
+<span class="s2">                        (sa, sct, svd) -&gt; (sct in (&#39;FAST LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CONSUMER LOANS&#39;, &#39;GENERAL LOANS&#39;,</span>
+<span class="s2">                                                &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;, &#39;CAR LEASING&#39;,</span>
+<span class="s2">                                                &#39;MORTGAGE&#39;) and</span>
+<span class="s2">                                        dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 30 and</span>
+<span class="s2">                                        sa &lt; 0 and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_amounts,</span>
+<span class="s2">                        statements_category_titles,</span>
+<span class="s2">                        statements_value_dates)),</span>
+<span class="s2">                            2)                                                as unnax_negative_loan_amount_l1m</span>
+<span class="s2">                    , round(if(unnax_negative_loan_amount_prev_l1m != 0 and unnax_negative_loan_amount_l1m != 0,</span>
+<span class="s2">                                unnax_negative_loan_amount_l1m / unnax_negative_loan_amount_prev_l1m, -1),</span>
+<span class="s2">                            2)                                                as loan_amount_l1m_to_prev_l1m</span>
+<span class="s2">                    , round(arrayReduce(&#39;median&#39;, arrayFilter(</span>
+<span class="s2">                        (balance, month) -&gt; (dateDiff(&#39;month&#39;, month, mnth_upload_date) &lt;= 3 and balance &gt;= 0 and</span>
+<span class="s2">                                            toDate(month) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_balances,</span>
+<span class="s2">                        mnth_transactions)),</span>
+<span class="s2">                            2)                                                as median_balance_amount_l3m</span>
+<span class="s2">                    , arrayCount((sa, svd) -&gt; (sa &lt; -250 and dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 90 and</span>
+<span class="s2">                                                toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                    statements_amounts,</span>
+<span class="s2">                                    statements_value_dates)                      as cnt_less_neg250eu_am_trans_l3m</span>
+<span class="s2">                    , arrayCount((sb, svd) -&gt; (sb &lt;= 0.1 * avg_balance_amount_l3m</span>
+<span class="s2">                    and dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 90 and toDate(svd) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                    statements_balances,</span>
+<span class="s2">                                    statements_value_dates)                      as less_10perc_balance_occur_l3m</span>
+<span class="s2">                    , round(arrayAvg(arrayFilter(</span>
+<span class="s2">                        (balance, month) -&gt; (dateDiff(&#39;month&#39;, month, mnth_upload_date) &lt;= 3 and balance &gt;= 0 and</span>
+<span class="s2">                                            toDate(month) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                        statements_balances,</span>
+<span class="s2">                        mnth_transactions)),</span>
+<span class="s2">                            2)                                                as avg_balance_amount_l3m</span>
+<span class="s2">                    , round(arrayReduce(&#39;sum&#39;,</span>
+<span class="s2">                                        arrayFilter(</span>
+<span class="s2">                                                (sa, sct, svd) -&gt; (sct in (&#39;FAST LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CONSUMER LOANS&#39;,</span>
+<span class="s2">                                                                            &#39;GENERAL LOANS&#39;,</span>
+<span class="s2">                                                                            &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;, &#39;CAR LEASING&#39;,</span>
+<span class="s2">                                                                            &#39;MORTGAGE&#39;) and</span>
+<span class="s2">                                                                    dateDiff(&#39;day&#39;, toDate(svd), toDate(upload_date)) &lt;= 90 and</span>
+<span class="s2">                                                                    sa &lt; 0 and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                                statements_amounts,</span>
+<span class="s2">                                                statements_category_titles,</span>
+<span class="s2">                                                statements_value_dates)),</span>
+<span class="s2">                            2)                                                as unnax_negative_loan_amount_l3m</span>
+<span class="s2">                    , round(if(avg_balance_amount_l3m != 0,</span>
+<span class="s2">                                unnax_negative_loan_amount_l3m / avg_balance_amount_l3m, -1),</span>
+<span class="s2">                            2)                                                as neg_loan_to_avg_balance_l3m</span>
+<span class="s2">                    , round(arraySum(arrayFilter((sa, svd, sct) -&gt; (dateDiff(&#39;day&#39;, svd, upload_date) &lt;= 180</span>
+<span class="s2">                    and sct in (&#39;GENERAL LOANS&#39;, &#39;FAST LOANS&#39;, &#39;CONSUMER LOANS&#39;) and toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                                    statements_amounts,</span>
+<span class="s2">                                                    statements_value_dates,</span>
+<span class="s2">                                                    statements_category_titles)),</span>
+<span class="s2">                            2)                                                as loans_expenses_l6m</span>
+<span class="s2">                    , round(arraySum(arrayFilter((sa, svd, sct) -&gt; (dateDiff(&#39;month&#39;, svd, upload_date) &lt;= 1</span>
+<span class="s2">                    and sct in</span>
+<span class="s2">                        (&#39;GENERAL LOANS&#39;, &#39;FAST LOANS&#39;, &#39;CONSUMER LOANS&#39;, &#39;CREDIT LINE&#39;, &#39;CREDIT CARD PAYMENT &amp; TRANSFERS&#39;) and</span>
+<span class="s2">                                                                    toDate(svd) &lt; toDate(T1.plz_date_issuance)</span>
+<span class="s2">                    and sa &gt; 0),</span>
+<span class="s2">                                                    statements_amounts,</span>
+<span class="s2">                                                    statements_value_dates,</span>
+<span class="s2">                                                    statements_category_titles)),</span>
+<span class="s2">                            2)                                                as loans_income_l1m_new</span>
+<span class="s2">                    , arrayCount((sb, svd) -&gt; (sb &lt;= 0.7 * avg_balance_all</span>
+<span class="s2">                    and toDate(svd) &lt;= toDate(upload_date) and toDate(svd) &lt;= toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                    statements_balances,</span>
+<span class="s2">                                    statements_value_dates)                      as less_70perc_balance_occur</span>
+<span class="s2">                    , round(arrayAvg(arrayFilter((balance, svd) -&gt; (toDate(svd) &lt; toDate(T1.plz_date_issuance)),</span>
+<span class="s2">                                                    statements_balances,</span>
+<span class="s2">                                                    statements_value_dates)), 2) as avg_balance_all</span>
+<span class="s2">                    , round(if(less_70perc_balance_occur = 0, 1, less_70perc_balance_occur) /</span>
+<span class="s2">                            if(avg_balance_all = 0, 1, avg_balance_all),</span>
+<span class="s2">                            2)                                                as share_70perc_balance_occur</span>
+<span class="s2">                FROM </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> T1</span>
+<span class="s2">                        LEFT JOIN (SELECT T.crdes_borrower_id                   as crdes_borrower_id,</span>
+<span class="s2">                                            T1.plz_date_issuance               as plz_date_issuance,</span>
+<span class="s2">                                            max(T.mnth_upload_date)               as mnth_upload_date,</span>
+<span class="s2">                                            max(T.upload_date)                       upload_date,</span>
+<span class="s2">                                            groupArray(T.mnth_transaction)        as mnth_transactions,</span>
+<span class="s2">                                            groupArray(statements_value_date)     as statements_value_dates,</span>
+<span class="s2">                                            groupArray(statements_amount)         as statements_amounts,</span>
+<span class="s2">                                            groupArray(statements_balance)        as statements_balances,</span>
+<span class="s2">                                            groupArray(statements_category_title) as statements_category_titles,</span>
+<span class="s2">                                            groupArray(statements_bank_id)        as statements_bank_ids,</span>
+<span class="s2">                                            groupArray(statements_bank_group_id)  as statements_bank_group_ids,</span>
+<span class="s2">                                            groupArray(statements_concepts)       as statements_concepts</span>
+<span class="s2">                                    FROM (</span>
+<span class="s2">                                            SELECT borrower_id as                        crdes_borrower_id</span>
+<span class="s2">                                                    , request_code</span>
+<span class="s2">                                                    , toStartOfMonth(upload_date)           mnth_upload_date</span>
+<span class="s2">                                                    , upload_date</span>
+<span class="s2">                                                    , toStartOfMonth(statements_value_date) mnth_transaction</span>
+<span class="s2">                                                    , statements_value_date</span>
+<span class="s2">                                                    , statements_amount</span>
+<span class="s2">                                                    , statements_balance</span>
+<span class="s2">                                                    , statements_category_title</span>
+<span class="s2">                                                    , statements_bank_id</span>
+<span class="s2">                                                    , statements_bank_group_id</span>
+<span class="s2">                                                    , statements_concepts</span>
+<span class="s2">                                            FROM escc_master.unnax_parsed_response</span>
+<span class="s2">                                                ARRAY JOIN statements_value_date</span>
+<span class="s2">                                                , statements_amount</span>
+<span class="s2">                                                , statements_balance</span>
+<span class="s2">                                                , statements_category_title</span>
+<span class="s2">                                                , statements_bank_id</span>
+<span class="s2">                                                , statements_bank_group_id</span>
+<span class="s2">                                                , statements_concepts</span>
+<span class="s2">                                            WHERE 1 = 1</span>
+<span class="s2">                                                AND statements_value_date &gt;= &#39;2021-01-01&#39;</span>
+<span class="s2">                                                AND toStartOfDay(statements_value_date) &lt; toStartOfDay(upload_date)</span>
+<span class="s2">                                                AND communication_type = &#39;FITNANCE_READ&#39;</span>
+<span class="s2">                                            ) T</span>
+<span class="s2">                                            JOIN </span><span class="si">{</span><span class="n">base_table</span><span class="si">}</span><span class="s2"> as T1</span>
+<span class="s2">                                                    on T1.crdes_borrower_id = T.crdes_borrower_id</span>
+<span class="s2">                                            JOIN (</span>
+<span class="s2">                                        SELECT *</span>
+<span class="s2">                                        FROM (</span>
+<span class="s2">                                                SELECT T1.borrower_id        as  crdes_borrower_id</span>
+<span class="s2">                                                        , T1.request_code    as  request_code</span>
+<span class="s2">                                                        , mnth_upload_date</span>
+<span class="s2">                                                        , mnth_transaction</span>
+<span class="s2">                                                        , ROW_NUMBER() OVER (PARTITION BY T1.borrower_id, mnth_transaction ORDER BY mnth_upload_date DESC) RN</span>
+<span class="s2">                                                FROM (</span>
+<span class="s2">                                                            SELECT borrower_id</span>
+<span class="s2">                                                                , request_code</span>
+<span class="s2">                                                                , toStartOfMonth(upload_date)           mnth_upload_date</span>
+<span class="s2">                                                                , toStartOfMonth(statements_value_date) mnth_transaction</span>
+<span class="s2">                                                            FROM escc_master.unnax_parsed_response</span>
+<span class="s2">                                                                    ARRAY JOIN statements_value_date</span>
+<span class="s2">                                                            WHERE mnth_transaction &gt;= &#39;2021-01-01&#39;</span>
+<span class="s2">                                                            AND request_code != &#39;&#39;</span>
+<span class="s2">                                                            AND communication_type = &#39;FITNANCE_READ&#39;</span>
+<span class="s2">                                                            ) T1</span>
+<span class="s2">                                                GROUP BY T1.borrower_id, T1.request_code, mnth_upload_date, mnth_transaction) T2</span>
+<span class="s2">                                        WHERE RN = 1</span>
+<span class="s2">                                        ) ts</span>
+<span class="s2">                                                    ON T.crdes_borrower_id = ts.crdes_borrower_id</span>
+<span class="s2">                                                        AND ts.request_code = T.request_code</span>
+<span class="s2">                                                        AND ts.mnth_upload_date = T.mnth_upload_date</span>
+<span class="s2">                                                        AND ts.mnth_transaction = T.mnth_transaction</span>
+<span class="s2">                                                        AND toDate(T.upload_date) &lt;= toDate(T1.plz_date_issuance)</span>
+<span class="s2">                                    GROUP BY T.crdes_borrower_id, T1.plz_date_issuance</span>
+<span class="s2">                    ) T2 ON T1.crdes_borrower_id = T2.crdes_borrower_id</span>
+<span class="s2">                    and T1.plz_date_issuance = T2.plz_date_issuance</span>
+<span class="s2">                    ) as sc</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">db_client</span><span class="o">.</span><span class="n">query_df</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;upload_date&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;plz_date_issuance&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;day&quot;</span><span class="p">)]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;upload_date&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, IDF DS team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
